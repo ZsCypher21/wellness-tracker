@@ -19,3 +19,52 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
 }
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing);
+  background-color: #020617;
+  border-bottom: 1px solid #1f2937;
+}
+
+.navbar__brand {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.navbar__links a {
+  margin-left: 0.75rem;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.navbar__links a.active {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem var(--spacing);
+}
+
+.page__title {
+  margin-bottom: 1rem;
+}
+
+.page__content {
+  background-color: var(--color-card);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+}
+
+.footer {
+  padding: 1rem var(--spacing);
+  text-align: center;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
