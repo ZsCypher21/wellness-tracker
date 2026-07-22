@@ -1,0 +1,21 @@
+:root {
+  --color-bg: #0f172a;
+  --color-card: #1e293b;
+  --color-accent: #38bdf8;
+  --color-text: #e5e7eb;
+  --spacing: 1rem;
+  --radius: 0.75rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
