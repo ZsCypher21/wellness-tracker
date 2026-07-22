@@ -1,32 +1,45 @@
-import { useHydration } from '../../context/HydrationContext';
+import { useState } from "react";
+import { useHydration } from "../../context/HydrationContext";
+import Tabs from "../ui/Tabs";
 
 export default function HydrationList() {
-  const { hydrationData, loading, deleteHydration } = useHydration();
+  const { hydration, deleteHydration } = useHydration();
+  const [tab, setTab] = useState("current");
 
-  if (loading) return <p>Loading hydration logs...</p>;
+  const today = new Date();
 
-  if (hydrationData.length === 0)
-    return <p>No hydration logs yet.</p>;
+  const current = hydration.filter(h => new Date(h.date) >= today);
+  const history = hydration.filter(h => new Date(h.date) < today);
 
   return (
-    <ul className="hydration-list">
-      {hydrationData.map((h) => (
-        <li key={h.id} className="hydration-item">
-          <div>
-            <strong>{h.date}</strong>
-            <br />
-            {h.liters} L consumed
-            {h.notes && <p>{h.notes}</p>}
-          </div>
+    <div>
+      <h3>Hydration</h3>
 
-          <button
-            className="delete-btn"
-            onClick={() => deleteHydration(h.id)}
-          >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+      <Tabs onChange={setTab} />
+
+      <ul className="hydration-list">
+        {(tab === "current" ? current : history).map((h) => (
+          <li key={h.id} className="hydration-item">
+            <div>
+              <strong>{h.liters} L consumed</strong>
+              <br />
+              <small>{h.date}</small>
+              {h.notes && (
+                <p style={{ marginTop: "0.5rem" }}>
+                  Notes: {h.notes}
+                </p>
+              )}
+            </div>
+
+            <button
+              className="delete-btn"
+              onClick={() => deleteHydration(h.id)}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

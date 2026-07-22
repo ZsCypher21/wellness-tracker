@@ -1,38 +1,33 @@
-import { useAppointments } from '../../context/AppointmentContext';
+import { useState } from "react";
+import { useAppointments } from "../../context/AppointmentContext";
+import Tabs from "../ui/Tabs";
 
 export default function AppointmentList() {
-  const { appointments, loading, deleteAppointment } = useAppointments();
+  const { appointments } = useAppointments();
+  const [tab, setTab] = useState("current");
 
-  if (loading) return <p>Loading appointments...</p>;
+  const now = new Date();
 
-  const upcoming = appointments.filter((a) => {
-    const now = new Date();
-    const appointmentDate = new Date(`${a.date} ${a.time}`);
-    return appointmentDate >= now;
-  });
-
-  if (upcoming.length === 0)
-    return <p>No upcoming appointments.</p>;
+  const upcoming = appointments.filter(a => new Date(a.date) >= now);
+  const past = appointments.filter(a => new Date(a.date) < now);
 
   return (
-    <ul className="appointment-list">
-      {upcoming.map((a) => (
-        <li key={a.id} className="appointment-item">
-          <div>
-            <strong>{a.type}</strong>
-            <br />
-            {a.date} — {a.time}
-            {a.notes && <p>{a.notes}</p>}
-          </div>
+    <div>
+      <h3>Appointments</h3>
 
-          <button
-            className="delete-btn"
-            onClick={() => deleteAppointment(a.id)}
-          >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+      <Tabs onChange={setTab} />
+
+      <ul className="appointment-list">
+        {(tab === "current" ? upcoming : past).map((a) => (
+          <li key={a.id} className="appointment-item">
+            <div>
+              <strong>{a.title}</strong>
+              <br />
+              <small>{a.date}</small>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

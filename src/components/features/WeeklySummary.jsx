@@ -6,9 +6,9 @@ import { useAppointments } from '../../context/AppointmentContext';
 
 export default function WeeklySummary() {
   const { activities } = useActivities();
-  const { sleepData } = useSleep();
+  const { sleep } = useSleep();
   const { meditations } = useMeditations();
-  const { hydrationData } = useHydration();
+  const { hydration } = useHydration();
   const { appointments } = useAppointments();
 
   const now = new Date();
@@ -21,9 +21,9 @@ export default function WeeklySummary() {
   }
 
   const weeklyActivities = activities.filter(a => isThisWeek(a.date));
-  const weeklySleep = sleepData.filter(s => isThisWeek(s.date));
+  const weeklySleep = sleep.filter(s => isThisWeek(s.date));
   const weeklyMeditation = meditations.filter(m => isThisWeek(m.date));
-  const weeklyHydration = hydrationData.filter(h => isThisWeek(h.date));
+  const weeklyHydration = hydration.filter(h => isThisWeek(h.date));
   const weeklyAppointments = appointments.filter(a => isThisWeek(a.date));
 
   const totalSleepHours = weeklySleep.reduce((sum, s) => sum + Number(s.totalHours), 0);

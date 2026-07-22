@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+
+// ⭐ Import your global stylesheet
 import './styles/global.css';
 
 import { ActivityProvider } from './context/ActivityContext.jsx';

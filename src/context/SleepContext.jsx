@@ -4,7 +4,7 @@ import { api } from '../services/api';
 const SleepContext = createContext();
 
 export function SleepProvider({ children }) {
-  const [sleepData, setSleepData] = useState([]);
+  const [sleep, setSleepData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function SleepProvider({ children }) {
   }
 
   return (
-    <SleepContext.Provider value={{ sleepData, loading, addSleep, deleteSleep }}>
+    <SleepContext.Provider value={{ sleep, loading, addSleep, deleteSleep }}>
       {children}
     </SleepContext.Provider>
   );

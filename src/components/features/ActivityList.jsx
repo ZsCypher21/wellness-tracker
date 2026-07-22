@@ -1,32 +1,33 @@
-import { useActivities } from '../../context/ActivityContext';
+import { useState } from "react";
+import { useActivities } from "../../context/ActivityContext";
+import Tabs from "../ui/Tabs";
 
 export default function ActivityList() {
-  const { activities, loading, deleteActivity } = useActivities();
+  const { activities } = useActivities();
+  const [tab, setTab] = useState("current");
 
-  if (loading) return <p>Loading activities...</p>;
+  const today = new Date();
 
-  if (activities.length === 0)
-    return <p>No activities logged yet.</p>;
+  const current = activities.filter(a => new Date(a.date) >= today);
+  const history = activities.filter(a => new Date(a.date) < today);
 
   return (
-    <ul className="activity-list">
-      {activities.map((a) => (
-        <li key={a.id} className="activity-item">
-          <div>
-            <strong>{a.type}</strong> — {a.duration} mins  
-            <br />
-            <small>{a.date}</small>
-            {a.notes && <p>{a.notes}</p>}
-          </div>
+    <div>
+      <h3>Activities</h3>
 
-          <button
-            className="delete-btn"
-            onClick={() => deleteActivity(a.id)}
-          >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+      <Tabs onChange={setTab} />
+
+      <ul className="activity-list">
+        {(tab === "current" ? current : history).map((a) => (
+          <li key={a.id} className="activity-item">
+            <div>
+              <strong>{a.type}</strong> — {a.duration} mins
+              <br />
+              <small>{a.date}</small>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

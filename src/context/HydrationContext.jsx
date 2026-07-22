@@ -4,7 +4,7 @@ import { api } from '../services/api';
 const HydrationContext = createContext();
 
 export function HydrationProvider({ children }) {
-  const [hydrationData, setHydrationData] = useState([]);
+  const [hydration, setHydrationData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function HydrationProvider({ children }) {
 
   return (
     <HydrationContext.Provider
-      value={{ hydrationData, loading, addHydration, deleteHydration }}
+      value={{ hydration, loading, addHydration, deleteHydration }}
     >
       {children}
     </HydrationContext.Provider>

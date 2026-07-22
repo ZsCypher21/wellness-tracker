@@ -1,32 +1,33 @@
-import { useMeditations } from '../../context/MeditationContext';
+import { useState } from "react";
+import { useMeditations } from "../../context/MeditationContext";
+import Tabs from "../ui/Tabs";
 
 export default function MeditationList() {
-  const { meditations, loading, deleteMeditation } = useMeditations();
+  const { meditations } = useMeditations();
+  const [tab, setTab] = useState("current");
 
-  if (loading) return <p>Loading meditation sessions...</p>;
+  const today = new Date();
 
-  if (meditations.length === 0)
-    return <p>No meditation sessions logged yet.</p>;
+  const current = meditations.filter(m => new Date(m.date) >= today);
+  const history = meditations.filter(m => new Date(m.date) < today);
 
   return (
-    <ul className="meditation-list">
-      {meditations.map((m) => (
-        <li key={m.id} className="meditation-item">
-          <div>
-            <strong>{m.type}</strong> — {m.duration} mins  
-            <br />
-            <small>{m.date}</small>
-            {m.notes && <p>{m.notes}</p>}
-          </div>
+    <div>
+      <h3>Meditation</h3>
 
-          <button
-            className="delete-btn"
-            onClick={() => deleteMeditation(m.id)}
-          >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+      <Tabs onChange={setTab} />
+
+      <ul className="meditation-list">
+        {(tab === "current" ? current : history).map((m) => (
+          <li key={m.id} className="meditation-item">
+            <div>
+              <strong>{m.type}</strong> — {m.duration} mins
+              <br />
+              <small>{m.date}</small>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

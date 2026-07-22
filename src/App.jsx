@@ -1,19 +1,19 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 
-import Dashboard from './pages/Dashboard';
-import Activities from './pages/Activities';
-import Sleep from './pages/Sleep';
-import Meditation from './pages/Meditation';
-import Hydration from './pages/Hydration';
-import Appointments from './pages/Appointments';
-import AppointmentHistory from './pages/AppointmentHistory';
-import Progress from './pages/Progress';
-import Settings from './pages/Settings';
+import Dashboard from "./pages/Dashboard";
+import Activities from "./pages/Activities";
+import Sleep from "./pages/Sleep";
+import Meditation from "./pages/Meditation";
+import Hydration from "./pages/Hydration";
+import Appointments from "./pages/Appointments";
+import AppointmentHistory from "./pages/AppointmentHistory";
+import Progress from "./pages/Progress";
+import Settings from "./pages/Settings";
 
 export default function App() {
-  return (    
+  return (
     <BrowserRouter>
       <Navbar />
       <Routes>

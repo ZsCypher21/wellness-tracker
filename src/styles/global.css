@@ -4,8 +4,8 @@
 :root {
   --color-bg: #0f172a;
   --color-card: #1e293b;
-  --color-accent: #38bdf8; /* Light blue accent */
-  --color-text: #e5e7eb;   /* Light grey / almost white */
+  --color-accent: #38bdf8;
+  --color-text: #e5e7eb;
   --spacing: 1rem;
   --radius: 0.75rem;
 }
@@ -53,22 +53,19 @@ body {
   padding: 0;
 }
 
-/* Default navbar link color */
 .navbar__links a {
-  color: var(--color-text); /* Light grey / white */
+  color: var(--color-text);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 400;
 }
 
-/* Hover state */
 .navbar__links a:hover {
-  color: #ffffff; /* Pure white */
+  color: #ffffff;
 }
 
-/* Active link (selected page) */
 .navbar__links a.active {
-  color: var(--color-accent); /* Light blue accent */
+  color: var(--color-accent);
   font-weight: 600;
   text-decoration: underline;
 }
@@ -118,7 +115,7 @@ body {
 }
 
 /* ===========================
-   Lists & Items (All Features)
+   Lists & Items
    =========================== */
 .activity-list,
 .sleep-list,
@@ -127,6 +124,10 @@ body {
 .appointment-list {
   list-style: none;
   padding: 0;
+  margin: 0;
+  height: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .activity-item,
@@ -138,9 +139,11 @@ body {
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: var(--radius);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block !important;        /* FINAL FIX */
+  width: 100%;
+  white-space: normal !important;   /* FINAL FIX */
+  overflow: visible !important;     /* FINAL FIX */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
 /* ===========================
@@ -156,7 +159,7 @@ body {
 }
 
 /* ===========================
-   Unified Feature Form
+   Feature Form
    =========================== */
 .feature-form {
   display: flex !important;
@@ -193,6 +196,7 @@ body {
   padding: 1.5rem;
   border-radius: var(--radius);
   margin-bottom: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
 .progress-card + .progress-card {
@@ -200,20 +204,7 @@ body {
 }
 
 /* ===========================
-   Card Shadows (Polish)
-   =========================== */
-.page__content,
-.activity-item,
-.sleep-item,
-.meditation-item,
-.hydration-item,
-.appointment-item,
-.progress-card {
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-
-/* ===========================
-   Hover & Focus Interactions
+   Hover & Focus
    =========================== */
 button:hover {
   opacity: 0.9;
@@ -239,20 +230,41 @@ select:focus {
 }
 
 /* ===========================
-   Responsive Layout
+   Tabs
+   =========================== */
+.tab {
+  background: #1e293b;
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+}
+
+.tab-active {
+  background: var(--color-accent);
+  color: black;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ===========================
+   Responsive Layout (FINAL FIX)
    =========================== */
 @media (max-width: 600px) {
-  .page {
-    padding: 1rem;
-  }
-
   .activity-item,
   .sleep-item,
   .meditation-item,
   .hydration-item,
   .appointment-item {
-    flex-direction: column;
-    align-items: flex-start;
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    align-items: flex-start !important;
     gap: 1rem;
   }
 }

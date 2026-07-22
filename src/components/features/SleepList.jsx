@@ -1,35 +1,46 @@
-import { useSleep } from '../../context/SleepContext';
+import { useState } from "react";
+import { useSleep } from "../../context/SleepContext";
+import Tabs from "../ui/Tabs";
 
 export default function SleepList() {
-  const { sleepData, loading, deleteSleep } = useSleep();
+  const { sleep, deleteSleep } = useSleep();
+  const [tab, setTab] = useState("current");
 
-  if (loading) return <p>Loading sleep data...</p>;
+  const today = new Date();
 
-  if (sleepData.length === 0)
-    return <p>No sleep entries logged yet.</p>;
+  const current = sleep.filter(s => new Date(s.date) >= today);
+  const history = sleep.filter(s => new Date(s.date) < today);
 
   return (
-    <ul className="sleep-list">
-      {sleepData.map((s) => (
-        <li key={s.id} className="sleep-item">
-          <div>
-            <strong>{s.date}</strong>
-            <br />
-            Bed: {s.sleepTime}  
-            <br />
-            Wake: {s.wakeTime}
-            <br />
-            <strong>Total: {s.totalHours} hrs</strong>
-          </div>
+    <div>
+      <h3>Sleep</h3>
 
-          <button
-            className="delete-btn"
-            onClick={() => deleteSleep(s.id)}
-          >
-            Delete
-          </button>
-        </li>
-      ))}
-    </ul>
+      <Tabs onChange={setTab} />
+
+      <ul className="sleep-list">
+        {(tab === "current" ? current : history).map((s) => (
+          <li key={s.id} className="sleep-item">
+            <div>
+              <strong>{s.totalHours} hours slept</strong>
+              <br />
+              <small>{s.date}</small>
+
+              {s.notes && (
+                <p style={{ marginTop: "0.5rem" }}>
+                  Notes: {s.notes}
+                </p>
+              )}
+            </div>
+
+            <button
+              className="delete-btn"
+              onClick={() => deleteSleep(s.id)}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
