@@ -2,31 +2,31 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 
-import DashboardPage from './pages/DashboardPage';
-import ActivitiesPage from './pages/ActivitiesPage';
-import SleepPage from './pages/SleepPage';
-import MeditationPage from './pages/MeditationPage';
-import HydrationPage from './pages/HydrationPage';
-import AppointmentsPage from './pages/AppointmentsPage';
-import AppointmentHistoryPage from './pages/AppointmentHistoryPage';
-import ProgressPage from './pages/ProgressPage';
-import SettingsPage from './pages/SettingsPage';
+import Dashboard from './pages/Dashboard';
+import Activities from './pages/Activities';
+import Sleep from './pages/Sleep';
+import Meditation from './pages/Meditation';
+import Hydration from './pages/Hydration';
+import Appointments from './pages/Appointments';
+import AppointmentHistory from './pages/AppointmentHistory';
+import Progress from './pages/Progress';
+import Settings from './pages/Settings';
 
 export default function App() {
-  return (
+  return (    
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/activities" element={<ActivitiesPage />} />
-        <Route path="/sleep" element={<SleepPage />} />
-        <Route path="/meditation" element={<MeditationPage />} />
-        <Route path="/hydration" element={<HydrationPage />} />
-        <Route path="/appointments" element={<AppointmentsPage />} />
-        <Route path="/appointments/history" element={<AppointmentHistoryPage />} />
-        <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/activities" element={<Activities />} />
+        <Route path="/sleep" element={<Sleep />} />
+        <Route path="/meditation" element={<Meditation />} />
+        <Route path="/hydration" element={<Hydration />} />
+        <Route path="/appointments" element={<Appointments />} />
+        <Route path="/appointments/history" element={<AppointmentHistory />} />
+        <Route path="/progress" element={<Progress />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Dashboard />} />
       </Routes>
       <Footer />
     </BrowserRouter>

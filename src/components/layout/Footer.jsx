@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
-    <footer className="footer">
-      <small>© {new Date().getFullYear()} Wellness Tracker</small>
+    <footer className="footer" aria-label="Site footer">
+      <p>© 2026 Wellness Tracker</p>
     </footer>
   );
 }

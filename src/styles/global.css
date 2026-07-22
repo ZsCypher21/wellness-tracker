@@ -1,12 +1,18 @@
+/* ===========================
+   Root Variables
+   =========================== */
 :root {
   --color-bg: #0f172a;
   --color-card: #1e293b;
-  --color-accent: #38bdf8;
-  --color-text: #e5e7eb;
+  --color-accent: #38bdf8; /* Light blue accent */
+  --color-text: #e5e7eb;   /* Light grey / almost white */
   --spacing: 1rem;
   --radius: 0.75rem;
 }
 
+/* ===========================
+   Global Reset
+   =========================== */
 *,
 *::before,
 *::after {
@@ -18,8 +24,12 @@ body {
   font-family: system-ui, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
+  line-height: 1.6;
 }
 
+/* ===========================
+   Navbar
+   =========================== */
 .navbar {
   display: flex;
   align-items: center;
@@ -34,18 +44,53 @@ body {
   color: var(--color-accent);
 }
 
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Default navbar link color */
 .navbar__links a {
-  margin-left: 0.75rem;
-  color: var(--color-text);
+  color: var(--color-text); /* Light grey / white */
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: 400;
 }
 
+/* Hover state */
+.navbar__links a:hover {
+  color: #ffffff; /* Pure white */
+}
+
+/* Active link (selected page) */
 .navbar__links a.active {
-  color: var(--color-accent);
-  font-weight: 500;
+  color: var(--color-accent); /* Light blue accent */
+  font-weight: 600;
+  text-decoration: underline;
 }
 
+/* ===========================
+   Responsive Navbar
+   =========================== */
+@media (max-width: 600px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar__links {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* ===========================
+   Page Layout
+   =========================== */
 .page {
   max-width: 960px;
   margin: 0 auto;
@@ -58,13 +103,156 @@ body {
 
 .page__content {
   background-color: var(--color-card);
-  padding: 1.5rem;
+  padding: 2rem;
   border-radius: var(--radius);
 }
 
+/* ===========================
+   Footer
+   =========================== */
 .footer {
   padding: 1rem var(--spacing);
   text-align: center;
   font-size: 0.8rem;
   color: #9ca3af;
+}
+
+/* ===========================
+   Lists & Items (All Features)
+   =========================== */
+.activity-list,
+.sleep-list,
+.meditation-list,
+.hydration-list,
+.appointment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.activity-item,
+.sleep-item,
+.meditation-item,
+.hydration-item,
+.appointment-item {
+  background: var(--color-card);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===========================
+   Delete Button
+   =========================== */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* ===========================
+   Unified Feature Form
+   =========================== */
+.feature-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.feature-form input,
+.feature-form textarea,
+.feature-form select {
+  padding: 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: var(--color-text);
+}
+
+.feature-form button {
+  background: var(--color-accent);
+  color: black;
+  padding: 0.85rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* ===========================
+   Progress Cards
+   =========================== */
+.progress-card {
+  background: var(--color-card);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+.progress-card + .progress-card {
+  margin-top: 1.5rem;
+}
+
+/* ===========================
+   Card Shadows (Polish)
+   =========================== */
+.page__content,
+.activity-item,
+.sleep-item,
+.meditation-item,
+.hydration-item,
+.appointment-item,
+.progress-card {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ===========================
+   Hover & Focus Interactions
+   =========================== */
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--color-accent);
+}
+
+.activity-item:hover,
+.sleep-item:hover,
+.meditation-item:hover,
+.hydration-item:hover,
+.appointment-item:hover {
+  background: #1e293b;
+  transition: background 0.2s ease;
+}
+
+/* ===========================
+   Responsive Layout
+   =========================== */
+@media (max-width: 600px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .activity-item,
+  .sleep-item,
+  .meditation-item,
+  .hydration-item,
+  .appointment-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }

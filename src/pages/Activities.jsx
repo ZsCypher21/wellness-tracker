@@ -1,9 +1,12 @@
 import PageContainer from '../components/layout/PageContainer';
+import ActivityForm from '../components/features/ActivityForm';
+import ActivityList from '../components/features/ActivityList';
 
 export default function Activities() {
   return (
     <PageContainer title="Activities">
-      <p>Dashboard content goes here.</p>
+      <ActivityForm />
+      <ActivityList />
     </PageContainer>
   );
 }

@@ -1,9 +1,10 @@
 import PageContainer from '../components/layout/PageContainer';
+import AppointmentHistoryList from '../components/features/AppointmentHistoryList';
 
 export default function AppointmentHistory() {
   return (
     <PageContainer title="Appointment History">
-      <p>Appointment history content goes here.</p>
+      <AppointmentHistoryList />
     </PageContainer>
   );
 }

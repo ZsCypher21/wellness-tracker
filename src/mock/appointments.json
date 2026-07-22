@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "type": "GP Appointment",
+    "description": "General check-up",
+    "date": "2026-07-25",
+    "time": "10:00",
+    "location": "Sydney Medical Centre",
+    "notes": "Bring Medicare card",
+    "completed": false
+  }
+]

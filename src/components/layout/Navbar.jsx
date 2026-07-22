@@ -1,19 +1,59 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <header className="navbar">
+    <nav className="navbar" aria-label="Main navigation">
       <div className="navbar__brand">Wellness Tracker</div>
-      <nav className="navbar__links">
-        <NavLink to="/dashboard">Dashboard</NavLink>
-        <NavLink to="/activities">Activities</NavLink>
-        <NavLink to="/sleep">Sleep</NavLink>
-        <NavLink to="/meditation">Meditation</NavLink>
-        <NavLink to="/hydration">Hydration</NavLink>
-        <NavLink to="/appointments">Appointments</NavLink>
-        <NavLink to="/progress">Progress</NavLink>
-        <NavLink to="/settings">Settings</NavLink>
-      </nav>
-    </header>
+
+      <ul className="navbar__links" role="menubar">
+        <li role="none">
+          <NavLink role="menuitem" to="/" end>
+            Dashboard
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/activities">
+            Activities
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/sleep">
+            Sleep
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/meditation">
+            Meditation
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/hydration">
+            Hydration
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/appointments">
+            Appointments
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/progress">
+            Progress
+          </NavLink>
+        </li>
+
+        <li role="none">
+          <NavLink role="menuitem" to="/settings">
+            Settings
+          </NavLink>
+        </li>
+      </ul>
+    </nav>
   );
 }
