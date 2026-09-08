@@ -1,64 +1,70 @@
-import { useState } from 'react';
-import { useHydration } from '../../context/HydrationContext';
+/**
+ * Form for adding a new hydration entry.
+ *
+ * Notes:
+ * - Follows the same structure as ActivityForm, SleepForm,
+ *   MeditationForm, and AppointmentForm.
+ * - Only the fields differ (liters, date).
+ *
+ * Responsibilities:
+ * - Manage local form state.
+ * - Submit a new hydration entry to HydrationContext.
+ * - Notify the parent component via onSubmit() so it can close
+ *   modals or refresh lists.
+ */
 
-export default function HydrationForm() {
+import { useState } from "react";
+import { useHydration } from "../../context/HydrationContext";
+
+export default function HydrationForm({ onSubmit }) {
   const { addHydration } = useHydration();
 
+  // Local form state for hydration fields
   const [form, setForm] = useState({
-    liters: '',
-    date: '',
-    notes: ''
+    liters: "",
+    date: "",
   });
 
+  /**
+   * Update form state when any input changes.
+   * Same pattern used across all feature forms.
+   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Submit the new hydration entry.
+   * - Prevent default form submission.
+   * - Add the hydration record to global context.
+   * - Trigger parent callback (usually closes modal).
+   */
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.liters || !form.date) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    addHydration({
-      liters: Number(form.liters),
-      date: form.date,
-      notes: form.notes
-    });
-
-    setForm({ liters: '', date: '', notes: '' });
+    addHydration(form);
+    onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      <h3>Add Hydration Log</h3>
+      <div className="form-row">
+        <label>Liters</label>
+        <input name="liters" value={form.liters} onChange={handleChange} />
+      </div>
 
-      <input
-        name="liters"
-        type="number"
-        step="0.1"
-        placeholder="Liters consumed"
-        value={form.liters}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="date"
-        type="date"
-        value={form.date}
-        onChange={handleChange}
-      />
-
-      <textarea
-        name="notes"
-        placeholder="Notes (optional)"
-        value={form.notes}
-        onChange={handleChange}
-      />
-
-      <button type="submit">Add Hydration</button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit">Add</button>
+      </div>
     </form>
   );
 }
