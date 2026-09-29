@@ -1,10 +1,13 @@
-import PageContainer from '../components/layout/PageContainer';
 import ProgressDashboard from '../components/features/ProgressDashboard';
 
 export default function Dashboard() {
   return (
-    <PageContainer title="Dashboard">
-      <ProgressDashboard />
-    </PageContainer>
+    <div className="dashboard-page">
+      <h2 className="dashboard-title">Dashboard</h2>
+
+      <div className="dashboard-grid">
+        <ProgressDashboard />
+      </div>
+    </div>
   );
 }

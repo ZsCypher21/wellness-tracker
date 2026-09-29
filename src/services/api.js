@@ -1,19 +1,35 @@
-import activities from '../mock/activities.json';
-import sleep from '../mock/sleep.json';
-import meditation from '../mock/meditation.json';
-import hydration from '../mock/hydration.json';
-import appointments from '../mock/appointments.json';
+// src/services/api.js
 
-export function simulateAsync(data) {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(data), 300);
+const API_URL = "http://localhost:5000/api";
+
+/**
+ * Generic GET request
+ * Automatically attaches JWT if provided
+ */
+export async function getJson(path, token = null) {
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
   });
+
+  return res.json();
 }
 
-export const api = {
-  getActivities: () => simulateAsync(activities),
-  getSleep: () => simulateAsync(sleep),
-  getMeditation: () => simulateAsync(meditation),
-  getHydration: () => simulateAsync(hydration),
-  getAppointments: () => simulateAsync(appointments)
-};
+/**
+ * Generic POST request
+ * Automatically attaches JWT if provided
+ */
+export async function postJson(path, body, token = null) {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(body)
+  });
+
+  return res.json();
+}

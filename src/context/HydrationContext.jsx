@@ -1,30 +1,53 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { getJson, postJson } from "../services/api";
+import { useAuth } from "./AuthContext";
 
 const HydrationContext = createContext();
 
 export function HydrationProvider({ children }) {
-  const [hydration, setHydrationData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+  const [hydrationData, setHydrationData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  async function loadRecent() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/hydration/recent", token);
+    setHydrationData(data || []);
+    setLoading(false);
+  }
+
+  async function loadHistory() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/hydration/history", token);
+    setHydrationData(data || []);
+    setLoading(false);
+  }
+
+  async function addHydration({ date, liters }) {
+    if (!token) return;
+
+    const res = await postJson(
+      "/hydration/add",
+      {
+        hydration_date: date,
+        liters
+      },
+      token
+    );
+
+    await loadRecent();
+    return res;
+  }
 
   useEffect(() => {
-    api.getHydration().then((data) => {
-      setHydrationData(data);
-      setLoading(false);
-    });
-  }, []);
-
-  function addHydration(entry) {
-    setHydrationData((prev) => [...prev, { id: Date.now(), ...entry }]);
-  }
-
-  function deleteHydration(id) {
-    setHydrationData((prev) => prev.filter((h) => h.id !== id));
-  }
+    if (token) loadRecent();
+  }, [token]);
 
   return (
     <HydrationContext.Provider
-      value={{ hydration, loading, addHydration, deleteHydration }}
+      value={{ hydrationData, loading, loadRecent, loadHistory, addHydration }}
     >
       {children}
     </HydrationContext.Provider>

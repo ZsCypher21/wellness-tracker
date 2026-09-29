@@ -1,28 +1,31 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
 
-// ⭐ Import your global stylesheet
-import './styles/global.css';
+import "./styles/global.css";
+import { BrowserRouter } from "react-router-dom";
 
-import { ActivityProvider } from './context/ActivityContext.jsx';
-import { SleepProvider } from './context/SleepContext.jsx';
-import { MeditationProvider } from './context/MeditationContext.jsx';
-import { HydrationProvider } from './context/HydrationContext.jsx';
-import { AppointmentProvider } from './context/AppointmentContext.jsx';
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { SleepProvider } from "./context/SleepContext.jsx";
+import { HydrationProvider } from "./context/HydrationContext.jsx";
+import { MeditationProvider } from "./context/MeditationContext.jsx";
+import { ActivityProvider } from "./context/ActivityContext.jsx";
+import { AppointmentProvider } from "./context/AppointmentContext.jsx";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <ActivityProvider>
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <AuthProvider>
       <SleepProvider>
-        <MeditationProvider>
-          <HydrationProvider>
-            <AppointmentProvider>
-              <App />
-            </AppointmentProvider>
-          </HydrationProvider>
-        </MeditationProvider>
+        <HydrationProvider>
+          <MeditationProvider>
+            <ActivityProvider>
+              <AppointmentProvider>
+                <App />
+              </AppointmentProvider>
+            </ActivityProvider>
+          </MeditationProvider>
+        </HydrationProvider>
       </SleepProvider>
-    </ActivityProvider>
-  </React.StrictMode>
+    </AuthProvider>
+  </BrowserRouter>
 );

@@ -1,71 +1,70 @@
-import { useState } from 'react';
-import { useAppointments } from '../../context/AppointmentContext';
+/**
+ * Form for adding a new appointment entry.
+ *
+ * Notes:
+ * - Follows the same structure as ActivityForm, SleepForm,
+ *   HydrationForm, and MeditationForm.
+ * - Only the fields differ (title, date).
+ *
+ * Responsibilities:
+ * - Manage local form state.
+ * - Submit a new appointment to AppointmentContext.
+ * - Notify the parent component via onSubmit() so it can close
+ *   modals or refresh lists.
+ */
 
-export default function AppointmentForm() {
+import { useState } from "react";
+import { useAppointments } from "../../context/AppointmentContext";
+
+export default function AppointmentForm({ onSubmit }) {
   const { addAppointment } = useAppointments();
 
+  // Local form state for appointment fields
   const [form, setForm] = useState({
-    type: '',
-    date: '',
-    time: '',
-    notes: ''
+    title: "",
+    date: "",
   });
 
+  /**
+   * Update form state when any input changes.
+   * Same pattern used across all feature forms.
+   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Submit the new appointment.
+   * - Prevent default form submission.
+   * - Add the appointment to global context.
+   * - Trigger parent callback (usually closes modal).
+   */
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.type || !form.date || !form.time) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    addAppointment({
-      type: form.type,
-      date: form.date,
-      time: form.time,
-      notes: form.notes
-    });
-
-    setForm({ type: '', date: '', time: '', notes: '' });
+    addAppointment(form);
+    onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      <h3>Save Booking</h3>
+      <div className="form-row">
+        <label>Title</label>
+        <input name="title" value={form.title} onChange={handleChange} />
+      </div>
 
-      <input
-        name="type"
-        placeholder="Appointment type (GP, Trainer, etc.)"
-        value={form.type}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="date"
-        type="date"
-        value={form.date}
-        onChange={handleChange}
-      />
-
-      <input
-        name="time"
-        type="time"
-        value={form.time}
-        onChange={handleChange}
-      />
-
-      <textarea
-        name="notes"
-        placeholder="Notes (optional)"
-        value={form.notes}
-        onChange={handleChange}
-      />
-
-      <button type="submit">Save Booking</button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit">Add</button>
+      </div>
     </form>
   );
 }

@@ -1,77 +1,74 @@
-import { useState } from 'react';
-import { useSleep } from '../../context/SleepContext';
+/**
+ * Form for adding a new sleep entry.
+ *
+ * Notes:
+ * - Follows the same structure as ActivityForm, HydrationForm,
+ *   MeditationForm, and AppointmentForm.
+ * - Only the fields differ (totalHours, date).
+ *
+ * Responsibilities:
+ * - Manage local form state.
+ * - Submit a new sleep entry to SleepContext.
+ * - Notify the parent component via onSubmit() so it can close
+ *   modals or refresh lists.
+ */
 
-export default function SleepForm() {
+import { useState } from "react";
+import { useSleep } from "../../context/SleepContext";
+
+export default function SleepForm({ onSubmit }) {
   const { addSleep } = useSleep();
 
+  // Local form state for sleep fields
   const [form, setForm] = useState({
-    sleepTime: '',
-    wakeTime: '',
-    date: ''
+    totalHours: "",
+    date: "",
   });
 
+  /**
+   * Update form state when any input changes.
+   * Same pattern used across all feature forms.
+   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function calculateHours(sleepTime, wakeTime) {
-    const [sH, sM] = sleepTime.split(':').map(Number);
-    const [wH, wM] = wakeTime.split(':').map(Number);
-
-    let start = sH * 60 + sM;
-    let end = wH * 60 + wM;
-
-    if (end < start) end += 24 * 60; // handle overnight sleep
-
-    return ((end - start) / 60).toFixed(1);
-  }
-
+  /**
+   * Submit the new sleep entry.
+   * - Prevent default form submission.
+   * - Add the sleep record to global context.
+   * - Trigger parent callback (usually closes modal).
+   */
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.sleepTime || !form.wakeTime || !form.date) {
-      alert('Please fill in all fields.');
-      return;
-    }
-
-    const totalHours = calculateHours(form.sleepTime, form.wakeTime);
-
-    addSleep({
-      sleepTime: form.sleepTime,
-      wakeTime: form.wakeTime,
-      totalHours,
-      date: form.date
-    });
-
-    setForm({ sleepTime: '', wakeTime: '', date: '' });
+    addSleep(form);
+    onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      <h3>Add Sleep Entry</h3>
+      <div className="form-row">
+        <label>Total Hours</label>
+        <input
+          name="totalHours"
+          value={form.totalHours}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="sleepTime"
-        type="time"
-        value={form.sleepTime}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="wakeTime"
-        type="time"
-        value={form.wakeTime}
-        onChange={handleChange}
-      />
-
-      <input
-        name="date"
-        type="date"
-        value={form.date}
-        onChange={handleChange}
-      />
-
-      <button type="submit">Add Sleep</button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit">Add</button>
+      </div>
     </form>
   );
 }

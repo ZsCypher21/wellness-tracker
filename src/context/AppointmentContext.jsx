@@ -1,29 +1,63 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { getJson, postJson } from "../services/api";
+import { useAuth } from "./AuthContext";
 
 const AppointmentContext = createContext();
 
 export function AppointmentProvider({ children }) {
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+  const [upcoming, setUpcoming] = useState([]);
+  const [past, setPast] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  async function loadUpcoming() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/appointments/upcoming", token);
+    setUpcoming(data || []);
+    setLoading(false);
+  }
+
+  async function loadPast() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/appointments/past", token);
+    setPast(data || []);
+    setLoading(false);
+  }
+
+  async function addAppointment({ type, description, datetime }) {
+    if (!token) return;
+
+    const res = await postJson(
+      "/appointments/add",
+      {
+        appointment_type: type,
+        description,
+        appointment_datetime: datetime
+      },
+      token
+    );
+
+    await loadUpcoming();
+    return res;
+  }
 
   useEffect(() => {
-    api.getAppointments().then((data) => {
-      setAppointments(data);
-      setLoading(false);
-    });
-  }, []);
-
-  function addAppointment(appointment) {
-    setAppointments((prev) => [...prev, { id: Date.now(), ...appointment }]);
-  }
-
-  function deleteAppointment(id) {
-    setAppointments((prev) => prev.filter((a) => a.id !== id));
-  }
+    if (token) loadUpcoming();
+  }, [token]);
 
   return (
-    <AppointmentContext.Provider value={{ appointments, loading, addAppointment, deleteAppointment }}>
+    <AppointmentContext.Provider
+      value={{
+        upcoming,
+        past,
+        loading,
+        loadUpcoming,
+        loadPast,
+        addAppointment
+      }}
+    >
       {children}
     </AppointmentContext.Provider>
   );

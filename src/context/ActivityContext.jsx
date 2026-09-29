@@ -1,29 +1,60 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { getJson, postJson } from "../services/api";
+import { useAuth } from "./AuthContext";
 
 const ActivityContext = createContext();
 
 export function ActivityProvider({ children }) {
+  const { token } = useAuth();
   const [activities, setActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
+  // Fetch last 5 activities
+  async function loadRecent() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/activities/recent", token);
+    setActivities(data || []);
+    setLoading(false);
+  }
+
+  // Fetch full history
+  async function loadHistory() {
+    if (!token) return;
+    setLoading(true);
+    const data = await getJson("/activities/history", token);
+    setActivities(data || []);
+    setLoading(false);
+  }
+
+  // Add new activity
+  async function addActivity({ type, duration, date }) {
+    if (!token) return;
+
+    const res = await postJson(
+      "/activities/add",
+      {
+        activity_type: type,
+        duration_minutes: duration,
+        activity_date: date
+      },
+      token
+    );
+
+    // Refresh recent list
+    await loadRecent();
+    return res;
+  }
+
+  // Load recent on login
   useEffect(() => {
-    api.getActivities().then((data) => {
-      setActivities(data);
-      setLoading(false);
-    });
-  }, []);
-
-  function addActivity(activity) {
-    setActivities((prev) => [...prev, { id: Date.now(), ...activity }]);
-  }
-
-  function deleteActivity(id) {
-    setActivities((prev) => prev.filter((a) => a.id !== id));
-  }
+    if (token) loadRecent();
+  }, [token]);
 
   return (
-    <ActivityContext.Provider value={{ activities, loading, addActivity, deleteActivity }}>
+    <ActivityContext.Provider
+      value={{ activities, loading, loadRecent, loadHistory, addActivity }}
+    >
       {children}
     </ActivityContext.Provider>
   );

@@ -1,72 +1,76 @@
-import { useState } from 'react';
-import { useActivities } from '../../context/ActivityContext';
+/**
+ * Form for adding a new activity entry.
+ *
+ * Notes:
+ * - Follows the same structure as SleepForm, HydrationForm,
+ *   MeditationForm, and AppointmentForm.
+ * - Only the fields differ (type, duration, date).
+ *
+ * Responsibilities:
+ * - Manage local form state.
+ * - Submit a new activity to ActivityContext.
+ * - Notify the parent component via onSubmit() so it can close
+ *   modals, refresh lists, or switch tabs.
+ */
 
-export default function ActivityForm() {
+import { useState } from "react";
+import { useActivities } from "../../context/ActivityContext";
+
+export default function ActivityForm({ onSubmit }) {
   const { addActivity } = useActivities();
 
+  // Local form state for activity fields
   const [form, setForm] = useState({
-    type: '',
-    duration: '',
-    date: '',
-    notes: ''
+    type: "",
+    duration: "",
+    date: "",
   });
 
+  /**
+   * Update form state when any input changes.
+   * Same pattern used across all feature forms.
+   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Submit the new activity.
+   * - Prevent default form submission.
+   * - Add the activity to global context.
+   * - Trigger parent callback (usually closes modal).
+   */
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.type || !form.duration || !form.date) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    addActivity({
-      type: form.type,
-      duration: Number(form.duration),
-      date: form.date,
-      notes: form.notes
-    });
-
-    setForm({ type: '', duration: '', date: '', notes: '' });
+    addActivity(form);
+    onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      <h3>Add Activity</h3>
+      <div className="form-row">
+        <label>Activity Type</label>
+        <input name="type" value={form.type} onChange={handleChange} />
+      </div>
 
-      <input
-        name="type"
-        placeholder="Activity type (e.g., Walk)"
-        value={form.type}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Duration (mins)</label>
+        <input name="duration" value={form.duration} onChange={handleChange} />
+      </div>
 
-      <input
-        name="duration"
-        type="number"
-        placeholder="Duration (minutes)"
-        value={form.duration}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="date"
-        type="date"
-        value={form.date}
-        onChange={handleChange}
-      />
-
-      <textarea
-        name="notes"
-        placeholder="Notes (optional)"
-        value={form.notes}
-        onChange={handleChange}
-      />
-
-      <button type="submit">Add Activity</button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit">Add</button>
+      </div>
     </form>
   );
 }

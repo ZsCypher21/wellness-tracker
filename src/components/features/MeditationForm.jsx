@@ -1,72 +1,70 @@
-import { useState } from 'react';
-import { useMeditations } from '../../context/MeditationContext';
+/**
+ * Form for adding a new meditation entry.
+ *
+ * Notes:
+ * - Follows the same structure as ActivityForm, SleepForm,
+ *   HydrationForm, and AppointmentForm.
+ * - Only the fields differ (duration, date).
+ *
+ * Responsibilities:
+ * - Manage local form state.
+ * - Submit a new meditation entry to MeditationContext.
+ * - Notify the parent component via onSubmit() so it can close
+ *   modals or refresh lists.
+ */
 
-export default function MeditationForm() {
-  const { addMeditation } = useMeditations();
+import { useState } from "react";
+import { useMeditation } from "../../context/MeditationContext";
 
+export default function MeditationForm({ onSubmit }) {
+  const { addMeditation } = useMeditation();
+
+  // Local form state for meditation fields
   const [form, setForm] = useState({
-    type: '',
-    duration: '',
-    date: '',
-    notes: ''
+    duration: "",
+    date: "",
   });
 
+  /**
+   * Update form state when any input changes.
+   * Same pattern used across all feature forms.
+   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Submit the new meditation entry.
+   * - Prevent default form submission.
+   * - Add the meditation record to global context.
+   * - Trigger parent callback (usually closes modal).
+   */
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!form.type || !form.duration || !form.date) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    addMeditation({
-      type: form.type,
-      duration: Number(form.duration),
-      date: form.date,
-      notes: form.notes
-    });
-
-    setForm({ type: '', duration: '', date: '', notes: '' });
+    addMeditation(form);
+    onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      <h3>Add Meditation Session</h3>
+      <div className="form-row">
+        <label>Duration (mins)</label>
+        <input name="duration" value={form.duration} onChange={handleChange} />
+      </div>
 
-      <input
-        name="type"
-        placeholder="Type (e.g., Mindfulness)"
-        value={form.type}
-        onChange={handleChange}
-      />
+      <div className="form-row">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+        />
+      </div>
 
-      <input
-        name="duration"
-        type="number"
-        placeholder="Duration (minutes)"
-        value={form.duration}
-        onChange={handleChange}
-      />
-
-      <input
-        name="date"
-        type="date"
-        value={form.date}
-        onChange={handleChange}
-      />
-
-      <textarea
-        name="notes"
-        placeholder="Notes (optional)"
-        value={form.notes}
-        onChange={handleChange}
-      />
-
-      <button type="submit">Add Meditation</button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit">Add</button>
+      </div>
     </form>
   );
 }

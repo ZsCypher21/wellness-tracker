@@ -1,78 +1,100 @@
-import WeeklySummary from "./WeeklySummary";
+/**
+ * Central analytics component for the Wellness Tracker.
+ *
+ * Responsibilities:
+ * - Fetch recent data from all wellness contexts.
+ * - Compute high-level metrics (averages, totals, streaks).
+ * - Display dashboard cards in a responsive grid.
+ */
+
+import { useActivities } from "../../context/ActivityContext";
 import { useSleep } from "../../context/SleepContext";
 import { useHydration } from "../../context/HydrationContext";
-import { useMeditations } from "../../context/MeditationContext";
-import { useActivities } from "../../context/ActivityContext";
+import { useMeditation } from "../../context/MeditationContext";
 import { useAppointments } from "../../context/AppointmentContext";
 
 export default function ProgressDashboard() {
-  const { sleepData = [] } = useSleep() || {};
-  const { hydrationData = [] } = useHydration() || {};
-  const { meditations = [] } = useMeditations() || {};
-  const { activities = [] } = useActivities() || {};
-  const { appointments = [] } = useAppointments() || {};
+  const { activities } = useActivities();
+  const { sleepData } = useSleep();
+  const { hydrationData } = useHydration();
+  const { meditationData } = useMeditation();
+  const { upcoming } = useAppointments();
 
-  const now = new Date();
-  const weekAgo = new Date();
-  weekAgo.setDate(now.getDate() - 7);
+  // ----- Activities -----
+  const totalActivityMinutes = activities.reduce(
+    (sum, a) => sum + (a.duration_minutes || 0),
+    0
+  );
 
-  function isThisWeek(dateStr) {
-    const d = new Date(dateStr);
-    return d >= weekAgo && d <= now;
-  }
-
-  const weeklySleep = sleepData.filter(s => isThisWeek(s.date));
-  const weeklyHydration = hydrationData.filter(h => isThisWeek(h.date));
-  const weeklyMeditation = meditations.filter(m => isThisWeek(m.date));
-  const weeklyActivities = activities.filter(a => isThisWeek(a.date));
-  const weeklyAppointments = appointments.filter(a => isThisWeek(a.date));
-
+  // ----- Sleep -----
   const avgSleep =
-    weeklySleep.length > 0
-      ? (weeklySleep.reduce((sum, s) => sum + Number(s.totalHours), 0) /
-          weeklySleep.length).toFixed(1)
+    sleepData.length > 0
+      ? (
+          sleepData.reduce((sum, s) => sum + (s.hours_slept || 0), 0) /
+          sleepData.length
+        ).toFixed(1)
       : 0;
 
-  const totalHydration = weeklyHydration.reduce(
-    (sum, h) => sum + Number(h.liters),
+  // ----- Hydration -----
+  const totalHydration = hydrationData.reduce(
+    (sum, h) => sum + (h.liters || 0),
     0
   );
 
-  const totalMeditation = weeklyMeditation.reduce(
-    (sum, m) => sum + Number(m.duration),
+  // ----- Meditation -----
+  const totalMeditationMinutes = meditationData.reduce(
+    (sum, m) => sum + (m.duration_minutes || 0),
     0
   );
+
+  // ----- Appointments -----
+  const nextAppointment = upcoming.length > 0 ? upcoming[0] : null;
 
   return (
-    <div className="dashboard">
-      <WeeklySummary />
-
-      <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <h3>Average Sleep</h3>
-          <p>{avgSleep} hrs/night</p>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Total Hydration</h3>
-          <p>{totalHydration} L this week</p>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Meditation Minutes</h3>
-          <p>{totalMeditation} mins</p>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Activities Logged</h3>
-          <p>{weeklyActivities.length} activities</p>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Appointments</h3>
-          <p>{weeklyAppointments.length} attended</p>
-        </div>
+    <>
+      {/* Activity Summary */}
+      <div className="dashboard-card">
+        <h3>Activity</h3>
+        <p>{totalActivityMinutes} mins logged</p>
       </div>
-    </div>
+
+      {/* Sleep Summary */}
+      <div className="dashboard-card">
+        <h3>Sleep</h3>
+        <p>Avg {avgSleep} hrs/night</p>
+      </div>
+
+      {/* Hydration Summary */}
+      <div className="dashboard-card">
+        <h3>Hydration</h3>
+        <p>{totalHydration} L consumed</p>
+      </div>
+
+      {/* Meditation Summary */}
+      <div className="dashboard-card">
+        <h3>Meditation</h3>
+        <p>{totalMeditationMinutes} mins total</p>
+      </div>
+
+      {/* Upcoming Appointment */}
+      <div className="dashboard-card">
+        <h3>Next Appointment</h3>
+        {nextAppointment ? (
+          <>
+            <strong>{nextAppointment.appointment_type}</strong>
+            <br />
+            {nextAppointment.description && (
+              <small>{nextAppointment.description}</small>
+            )}
+            <br />
+            <small>
+              {new Date(nextAppointment.appointment_datetime).toLocaleString()}
+            </small>
+          </>
+        ) : (
+          <p>No upcoming appointments</p>
+        )}
+      </div>
+    </>
   );
 }
