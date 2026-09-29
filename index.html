@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html lang="en">
   <head>
@@ -37,3 +38,44 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+=======
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- 
+    
+      Key responsibilities:
+      - Define the document structure and metadata.
+      - Provide the <div id="root"> mount point for ReactDOM.
+      - Load the main React entry file (main.jsx).
+      - Set favicon and viewport settings for responsive design.
+    -->
+
+    <meta charset="UTF-8" />
+
+    <!-- Favicon used by the browser tab -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Ensures proper scaling and responsiveness on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Title displayed in the browser tab -->
+    <title>wellnesstracker-app</title>
+  </head>
+
+  <body>
+    <!-- 
+      React mounts the entire application into this root element.
+      All components, pages, and routing logic are rendered inside this div.
+    -->
+    <div id="root"></div>
+
+    <!-- 
+      Load the main React entry file.
+      Vite uses ES modules, so we import main.jsx directly.
+      This file initializes React, wraps the app with providers, and renders <App />.
+    -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+>>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d

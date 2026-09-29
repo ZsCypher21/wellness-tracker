@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ==========================================================
    ROOT VARIABLES — Theme + Design Tokens
    ----------------------------------------------------------
@@ -541,3 +542,474 @@ select:focus {
   text-align: center;
   margin-top: -0.5rem;
 }
+=======
+/* ==========================================================
+   ROOT VARIABLES — Theme + Design Tokens
+   ----------------------------------------------------------
+   Centralized color palette, spacing, and radius values.
+   Used across all components for consistency and maintainability.
+   ========================================================== */
+:root {
+  --bg-main: #ECECEC;          /* Main background */
+  --bg-card: #FAFAFA;          /* Card background */
+  --grey-light: #D4D4D4;
+  --grey-medium: #B8B8B8;
+
+  --accent: #FF8A00;           /* Primary brand color */
+  --accent-dark: #E67600;      /* Darker accent for hover/active */
+  --accent-soft: rgba(255, 138, 0, 0.15);
+
+  --text-dark: #2A2A2A;
+  --text-light: #4A4A4A;
+
+  --spacing: 1rem;             /* Standard spacing unit */
+  --radius: 0.75rem;           /* Standard border radius */
+}
+
+
+/* ==========================================================
+   GLOBAL RESET — Normalize layout behaviour
+   ========================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+
+/* ==========================================================
+   NAVBAR — Top navigation bar
+   ----------------------------------------------------------
+   Contains brand, menu button, and user info.
+   Uses accent color for strong visual identity.
+   ========================================================== */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing);
+  background-color: var(--accent);
+  border-bottom: 1px solid var(--accent-dark);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.25),
+    0 8px 20px var(--accent-soft);
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.navbar__brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar__username {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.logout-btn {
+  background: #ffffff;
+  color: var(--accent-dark);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   PAGE LAYOUT — Standard content container
+   ========================================================== */
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem var(--spacing);
+}
+
+.page__title {
+  margin-bottom: 1rem;
+}
+
+.page__content {
+  background-color: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  border: 1px solid var(--grey-medium);
+}
+
+
+/* ==========================================================
+   FOOTER — Simple bottom section
+   ========================================================== */
+.footer {
+  padding: 1rem var(--spacing);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+
+/* ==========================================================
+   LIST ITEMS — Reusable card style for logs/history
+   ========================================================== */
+.activity-item,
+.sleep-item,
+.meditation-item,
+.hydration-item,
+.appointment-item {
+  background: var(--bg-card);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  border: 1px solid var(--grey-medium);
+}
+
+
+/* ==========================================================
+   DELETE BUTTON — Red destructive action
+   ========================================================== */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+
+/* ==========================================================
+   FEATURE FORM — Unified form styling across all modules
+   ========================================================== */
+.feature-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.feature-form input,
+.feature-form textarea,
+.feature-form select {
+  padding: 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--grey-medium);
+  background: #ffffff;
+  color: var(--text-dark);
+  width: 100%;
+}
+
+.feature-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+
+/* ==========================================================
+   INPUT FOCUS + ITEM HOVER — Interaction feedback
+   ========================================================== */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+}
+
+.activity-item:hover,
+.sleep-item:hover,
+.meditation-item:hover,
+.hydration-item:hover,
+.appointment-item:hover {
+  background: var(--grey-light);
+  transition: background 0.2s ease;
+}
+
+
+/* ==========================================================
+   TABS — Toggle buttons for switching views
+   ========================================================== */
+.tab {
+  background: var(--grey-light);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--grey-medium);
+  cursor: pointer;
+}
+
+.tab-active {
+  background: var(--accent);
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   BUTTON SYSTEM — Reusable button styles
+   ========================================================== */
+.btn {
+  background: var(--grey-light);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--grey-medium);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: var(--accent-soft);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #ffffff;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  border: none;
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+}
+
+.btn-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+
+/* ==========================================================
+   SIDEBAR — Slide-in navigation panel
+   ----------------------------------------------------------
+   Includes:
+   - Rounded right edges
+   - Accent hover indicator bar
+   - Blurred overlay for mobile focus
+   ========================================================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: #F4F4F4;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+  padding: 1rem;
+  transition: transform 0.3s ease;
+  z-index: 999;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--accent-dark);
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+
+.sidebar-links li {
+  margin-bottom: 1rem;
+}
+
+.sidebar-links a {
+  text-decoration: none;
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.6rem 0.5rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+  border-radius: 6px;
+}
+
+/* Accent indicator bar */
+.sidebar-links a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 0%;
+  width: 4px;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: height 0.2s ease;
+}
+
+.sidebar-links a:hover::before {
+  height: 70%;
+}
+
+.sidebar-links a:hover {
+  color: var(--accent-dark);
+  background: rgba(255, 138, 0, 0.08);
+}
+
+
+/* ==========================================================
+   SIDEBAR OVERLAY — Blurred background when sidebar is open
+   ========================================================== */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+/* ==========================================================
+   MODAL — Reusable modal window system
+   ========================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-window {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: var(--accent-dark);
+}
+
+
+/* ==========================================================
+   DASHBOARD — Full-width layout + responsive grid
+   ========================================================== */
+.dashboard-page {
+  width: 100%;
+  padding: 2rem;
+}
+
+.dashboard-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  border: 1px solid var(--grey-medium);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover lift animation */
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+
+/* ==========================================================
+   METRIC ACCENTS — Color-coded left borders
+   ========================================================== */
+.metric-sleep,
+.metric-hydration,
+.metric-meditation,
+.metric-activities,
+.metric-appointments {
+  border-left: 6px solid #E67E22;
+}
+>>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d
