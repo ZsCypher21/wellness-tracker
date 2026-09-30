@@ -32,6 +32,57 @@ router.post('/add', auth, async (req, res) => {
   }
 });
 
+// UPDATE ACTIVITY
+router.put('/:id', auth, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const { id } = req.params;
+    const { activity_type, duration_minutes, activity_date } = req.body;
+
+    const updated = await pool.query(
+      `UPDATE activities
+       SET activity_type = $1,
+           duration_minutes = $2,
+           activity_date = $3
+       WHERE id = $4 AND user_id = $5
+       RETURNING *`,
+      [activity_type, duration_minutes, activity_date, id, userId]
+    );
+
+    if (updated.rows.length === 0) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error("UPDATE ACTIVITY ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE ACTIVITY
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const { id } = req.params;
+
+    const deleted = await pool.query(
+      "DELETE FROM activities WHERE id = $1 AND user_id = $2 RETURNING id",
+      [id, userId]
+    );
+
+    if (deleted.rows.length === 0) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    res.json({ message: "Activity deleted" });
+  } catch (err) {
+    console.error("DELETE ACTIVITY ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 // GET RECENT ACTIVITIES (last 5)
 router.get('/recent', auth, async (req, res) => {
   try {

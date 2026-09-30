@@ -1,15 +1,20 @@
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { useActivities } from "../context/ActivityContext";
 import { useAuth } from "../context/AuthContext";
 import Modal from "../components/ui/Modal";
 import ActivityForm from "../components/features/ActivityForm";
+import EditActivityModal from "../components/features/EditActivityModal";
+import HistoryItem from "../components/common/HistoryItem";
 import { Navigate } from "react-router-dom";
+import { putJson, deleteJson } from "../services/api";
 
 export default function Activities() {
   const { token } = useAuth();
   const { activities, loading, loadRecent } = useActivities();
+
   const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (token) loadRecent();
@@ -18,6 +23,18 @@ export default function Activities() {
   if (!token) return <Navigate to="/login" />;
 
   const recent = [...activities].slice(0, 5);
+
+  async function handleSave(updated) {
+    const res = await putJson(`/activities/${updated.id}`, updated, token);
+    loadRecent();
+    setEditOpen(false);
+    setEditing(null);
+  }
+
+  async function handleDelete(item) {
+    await deleteJson(`/activities/${item.id}`, token);
+    loadRecent();
+  }
 
   return (
     <div className="page">
@@ -28,11 +45,22 @@ export default function Activities() {
 
         <ul className="activity-list">
           {recent.map((a) => (
-            <li key={a.id} className="activity-item">
-              <strong>{a.activity_type}</strong> — {a.duration_minutes} mins
-              <br />
-              <small>{a.activity_date}</small>
-            </li>
+            <HistoryItem
+              key={a.id}
+              item={a}
+              onEdit={(item) => {
+                setEditing(item);
+                setEditOpen(true);
+              }}
+              onDelete={handleDelete}
+              renderContent={(item) => (
+                <>
+                  <strong>{item.activity_type}</strong> — {item.duration_minutes} mins
+                  <br />
+                  <small>{item.activity_date}</small>
+                </>
+              )}
+            />
           ))}
         </ul>
 
@@ -41,10 +69,7 @@ export default function Activities() {
             Add Activity
           </button>
 
-          <button
-            className="btn"
-            onClick={() => (window.location.href = "/activities/history")}
-          >
+          <button className="btn" onClick={() => (window.location.href = "/activities/history")}>
             History
           </button>
         </div>
@@ -53,89 +78,14 @@ export default function Activities() {
           <h3>Add Activity</h3>
           <ActivityForm onSubmit={() => setShowAdd(false)} />
         </Modal>
+
+        <EditActivityModal
+          open={editOpen}
+          activity={editing}
+          onSave={handleSave}
+          onClose={() => setEditOpen(false)}
+        />
       </div>
     </div>
   );
 }
-=======
-/**
- * Responsibilities:
- * - Display the user's most recent physical activities (latest 5).
- * - Provide actions to add new activity logs and view full history.
- * - Use a modal window to show ActivityForm for adding entries.
- * - Retrieve shared activity data from ActivityContext.
- *
- * Demonstrates:
- * - Context-based state consumption
- * - Local UI state (modal visibility)
- * - Sorting and slicing data for a dashboard-style preview
- * - Reusable UI components (Modal, ActivityForm)
- */
-
-import { useState } from "react";
-import { useActivities } from "../context/ActivityContext";
-import Modal from "../components/ui/Modal";
-import ActivityForm from "../components/features/ActivityForm";
-
-export default function Activities() {
-  // Access global activity data from ActivityContext
-  const { activities } = useActivities();
-
-  // Local state controlling visibility of the "Add Activity" modal
-  const [showAdd, setShowAdd] = useState(false);
-
-  /**
-   * Sort activity entries by date (newest → oldest).
-   * Spread operator ensures we do not mutate context state.
-   */
-  const sorted = [...activities].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
-
-  // Show only the 5 most recent entries on the main page
-  const recent = sorted.slice(0, 5);
-
-  return (
-    <div className="page">
-      <div className="page__content">
-        <h2>Activities</h2>
-
-        {/* Recent activity logs preview */}
-        <ul className="activity-list">
-          {recent.map((a) => (
-            <li key={a.id} className="activity-item">
-              <strong>{a.type}</strong> — {a.duration} mins
-              <br />
-              <small>{a.date}</small>
-            </li>
-          ))}
-        </ul>
-
-        {/* Action buttons: Add Activity + View History */}
-        <div className="btn-center" style={{ gap: "1rem" }}>
-          {/* Open modal */}
-          <button className="btn-primary" onClick={() => setShowAdd(true)}>
-            Add Activity
-          </button>
-
-          {/* Navigate to full history page */}
-          <button
-            className="btn"
-            onClick={() => (window.location.href = "/activities/history")}
-          >
-            History
-          </button>
-        </div>
-
-        {/* Modal for adding new activity entry */}
-        <Modal isOpen={showAdd} onClose={() => setShowAdd(false)}>
-          <h3>Add Activity</h3>
-
-          {/* ActivityForm handles validation + submission */}
-          <ActivityForm onSubmit={() => setShowAdd(false)} />
-        </Modal>
-      </div>
-    </div>
-  );
-}
->>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d

@@ -1,18 +1,37 @@
-<<<<<<< HEAD
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useHydration } from "../../context/HydrationContext";
 import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import HistoryItem from "../../components/common/HistoryItem";
+import EditHydrationModal from "../../components/features/EditHydrationModal";
+import { putJson, deleteJson } from "../../services/api";
 
 export default function HydrationHistory() {
-  const { token } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const { hydrationData, loading, loadHistory } = useHydration();
 
+  const [editing, setEditing] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (token) loadHistory();
+    if (token) loadHistory(token);
   }, [token]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  async function handleSave(updated) {
+    await putJson(`/hydration/${updated.id}`, updated, token);
+    loadHistory(token);
+    setEditOpen(false);
+    setEditing(null);
+  }
+
+  async function handleDelete(item) {
+    await deleteJson(`/hydration/${item.id}`, token);
+    loadHistory(token);
+  }
 
   return (
     <div className="page">
@@ -21,58 +40,41 @@ export default function HydrationHistory() {
 
         {loading && <p>Loading...</p>}
 
-        <ul className="hydration-list">
+        <ul className="activity-list">
           {hydrationData.map((h) => (
-            <li key={h.id} className="hydration-item">
-              <strong>{h.liters} L</strong>
-              <br />
-              <small>{h.hydration_date}</small>
-            </li>
+            <HistoryItem
+              key={h.id}
+              item={h}
+              onEdit={(item) => {
+                setEditing(item);
+                setEditOpen(true);
+              }}
+              onDelete={handleDelete}
+              renderContent={(item) => (
+                <>
+                  <strong>{item.liters} L</strong>
+                  <br />
+                  <small>{item.hydration_date}</small>
+                </>
+              )}
+            />
           ))}
         </ul>
+
+        {/* Bottom back button */}
+        <div className="btn-center" style={{ marginTop: "2rem" }}>
+          <button className="btn" onClick={() => navigate("/hydration")}>
+            ← Back
+          </button>
+        </div>
+
+        <EditHydrationModal
+          open={editOpen}
+          hydration={editing}
+          onSave={handleSave}
+          onClose={() => setEditOpen(false)}
+        />
       </div>
     </div>
   );
 }
-=======
-/**
- * Note:
- * - This component follows the same structure and behaviour
- *   as SleepHistory and MeditationHistory.
- * - The only differences are the dataset (hydrationData)
- *   and the displayed fields (liters + date).
- *
- * Responsibilities:
- * - Retrieve all hydration entries from HydrationContext.
- * - Display them newest → oldest using a reversed list.
- */
-
-import { useHydration } from "../../context/HydrationContext";
-
-export default function HydrationHistory() {
-  // Access global hydration data
-  const { hydrationData } = useHydration();
-
-  // Reverse order → newest first (same pattern as other history pages)
-  const sorted = [...hydrationData].reverse();
-
-  return (
-    <div className="page">
-      <div className="page__content">
-        <h2>Hydration History</h2>
-
-        {/* Full hydration history list */}
-        <ul className="hydration-list">
-          {sorted.map((h) => (
-            <li key={h.id} className="hydration-item">
-              <strong>{h.liters} L</strong>
-              <br />
-              <small>{h.date}</small>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
->>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d

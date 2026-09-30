@@ -1,18 +1,37 @@
-<<<<<<< HEAD
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMeditation } from "../../context/MeditationContext";
 import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import HistoryItem from "../../components/common/HistoryItem";
+import EditMeditationModal from "../../components/features/EditMeditationModal";
+import { putJson, deleteJson } from "../../services/api";
 
 export default function MeditationHistory() {
-  const { token } = useAuth();
-  const { meditationData, loading, loadHistory } = useMeditation();
+  const { isAuthenticated, token } = useAuth();
+  const { meditations, loading, loadHistory } = useMeditation();
+
+  const [editing, setEditing] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) loadHistory();
+    if (token) loadHistory(token);
   }, [token]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  async function handleSave(updated) {
+    await putJson(`/meditation/${updated.id}`, updated, token);
+    loadHistory(token);
+    setEditOpen(false);
+    setEditing(null);
+  }
+
+  async function handleDelete(item) {
+    await deleteJson(`/meditation/${item.id}`, token);
+    loadHistory(token);
+  }
 
   return (
     <div className="page">
@@ -21,57 +40,41 @@ export default function MeditationHistory() {
 
         {loading && <p>Loading...</p>}
 
-        <ul className="meditation-list">
-          {meditationData.map((m) => (
-            <li key={m.id} className="meditation-item">
-              <strong>{m.duration_minutes} mins</strong>
-              <br />
-              <small>{m.meditation_date}</small>
-            </li>
+        <ul className="activity-list">
+          {meditations.map((m) => (
+            <HistoryItem
+              key={m.id}
+              item={m}
+              onEdit={(item) => {
+                setEditing(item);
+                setEditOpen(true);
+              }}
+              onDelete={handleDelete}
+              renderContent={(item) => (
+                <>
+                  <strong>{item.meditation_type}</strong> — {item.duration_minutes} mins
+                  <br />
+                  <small>{item.meditation_date}</small>
+                </>
+              )}
+            />
           ))}
         </ul>
+
+        {/* Bottom back button */}
+        <div className="btn-center" style={{ marginTop: "2rem" }}>
+          <button className="btn" onClick={() => navigate("/meditation")}>
+            ← Back
+          </button>
+        </div>
+
+        <EditMeditationModal
+          open={editOpen}
+          meditation={editing}
+          onSave={handleSave}
+          onClose={() => setEditOpen(false)}
+        />
       </div>
     </div>
   );
 }
-=======
-/**
- * Note:
- * - This component follows the exact same structure and logic
- *   as SleepHistory (list view, reverse chronological order).
- * - Only the dataset and display fields differ.
- *
- * Responsibilities:
- * - Retrieve all meditation entries from MeditationContext.
- * - Display them newest → oldest using a simple reversed list.
- */
-
-import { useMeditation } from "../../context/MeditationContext";
-
-export default function MeditationHistory() {
-  // Access global meditation data
-  const { meditations } = useMeditation();
-
-  // Reverse order → newest first (same pattern as SleepHistory)
-  const sorted = [...meditations].reverse();
-
-  return (
-    <div className="page">
-      <div className="page__content">
-        <h2>Meditation History</h2>
-
-        {/* Full meditation history list */}
-        <ul className="meditation-list">
-          {sorted.map((m) => (
-            <li key={m.id} className="meditation-item">
-              <strong>{m.duration} mins</strong>
-              <br />
-              <small>{m.date}</small>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
->>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d

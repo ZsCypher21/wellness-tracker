@@ -42,6 +42,9 @@ import AppointmentsHistory from "./pages/history/AppointmentsHistory";
 // Progress dashboard
 import Progress from "./pages/Progress";
 
+// ⭐ NEW — Profile page
+import Profile from "./pages/Profile";
+
 // Route guard
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -185,6 +188,16 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Progress />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ⭐ NEW — Profile Route */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />

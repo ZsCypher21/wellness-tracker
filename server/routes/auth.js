@@ -44,7 +44,11 @@ router.post('/register', async (req, res) => {
 
     res.json({
       message: "Registration successful",
-      user: newUser.rows[0],
+      user: {
+        id: newUser.rows[0].id,
+        name: newUser.rows[0].full_name,   // ⭐ FIXED
+        email: newUser.rows[0].email
+      },
       token
     });
 
@@ -92,7 +96,7 @@ router.post('/login', async (req, res) => {
       message: "Login successful",
       user: {
         id: user.id,
-        full_name: user.full_name,
+        name: user.full_name,   // ⭐ FIXED
         email: user.email
       },
       token

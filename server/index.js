@@ -4,12 +4,12 @@ const express = require('express');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
-// Future routes (we will add these one by one)
 const activityRoutes = require('./routes/activities');
 const sleepRoutes = require('./routes/sleep');
 const meditationRoutes = require('./routes/meditation');
 const hydrationRoutes = require('./routes/hydration');
 const appointmentRoutes = require('./routes/appointments');
+const profileRoutes = require("./routes/profile");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,6 +38,7 @@ app.use('/api/sleep', sleepRoutes);
 app.use('/api/meditation', meditationRoutes);
 app.use('/api/hydration', hydrationRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Root route
 app.get('/', (req, res) => {

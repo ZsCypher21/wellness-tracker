@@ -1,18 +1,25 @@
-<<<<<<< HEAD
-import { useEffect } from "react";
+// src/pages/history/AppointmentsHistory.jsx
+import { useEffect, useState } from "react";
 import { useAppointments } from "../../context/AppointmentContext";
 import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import HistoryItem from "../../components/common/HistoryItem";
+import EditAppointmentModal from "../../components/features/EditAppointmentModal";
 
 export default function AppointmentsHistory() {
-  const { token } = useAuth();
-  const { past, loading, loadPast } = useAppointments();
+  const { isAuthenticated, token } = useAuth();
+  const { past, loading, loadPast, updateAppointment, deleteAppointment } = useAppointments();
+
+  const [editing, setEditing] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (token) loadPast();
   }, [token]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
     <div className="page">
@@ -23,70 +30,43 @@ export default function AppointmentsHistory() {
 
         <ul className="appointment-list">
           {past.map((a) => (
-            <li key={a.id} className="appointment-item">
-              <strong>{a.appointment_type}</strong>
-              <br />
-              {a.description && <small>{a.description}</small>}
-              <br />
-              <small>{new Date(a.appointment_datetime).toLocaleString()}</small>
-            </li>
+            <HistoryItem
+              key={a.id}
+              item={a}
+              onEdit={() => {
+                setEditing(a);
+                setEditOpen(true);
+              }}
+              onDelete={() => deleteAppointment(a.id)}
+              renderContent={(item) => (
+                <>
+                  <strong>{item.appointment_type}</strong>
+                  <br />
+                  {item.description && <small>{item.description}</small>}
+                  <br />
+                  <small>{new Date(item.appointment_datetime).toLocaleString()}</small>
+                </>
+              )}
+            />
           ))}
         </ul>
+
+        <div className="btn-center" style={{ marginTop: "2rem" }}>
+          <button className="btn" onClick={() => navigate("/appointments")}>
+            ← Back
+          </button>
+        </div>
+
+        <EditAppointmentModal
+          open={editOpen}
+          appointment={editing}
+          onSave={(updated) => {
+            updateAppointment(editing.id, updated);
+            setEditOpen(false);
+          }}
+          onClose={() => setEditOpen(false)}
+        />
       </div>
     </div>
   );
 }
-=======
-/**
- * Note:
- * - Structure is similar to SleepHistory, MeditationHistory,
- *   and HydrationHistory (list view, reversed/sorted data).
- * - The key difference: appointments require date filtering
- *   because only *past* entries should appear here.
- *
- * Responsibilities:
- * - Retrieve all appointments from AppointmentContext.
- * - Sort them chronologically using YYYY-MM-DD string comparison.
- * - Filter out only past appointments (date < today).
- */
-
-import { useAppointments } from "../../context/AppointmentContext";
-
-export default function AppointmentsHistory() {
-  // Access global appointment data
-  const { appointments } = useAppointments();
-
-  // Today formatted as YYYY-MM-DD (avoids timezone issues)
-  const todayStr = new Date().toISOString().split("T")[0];
-
-  // Sort chronologically using safe string comparison
-  const sorted = [...appointments].sort(
-    (a, b) => a.date.localeCompare(b.date)
-  );
-
-  // Select only past appointments (unique to this history page)
-  const past = sorted.filter(a => a.date < todayStr);
-
-  return (
-    <div className="page">
-      <div className="page__content">
-        <h2>Past Appointments</h2>
-
-        {/* Empty state */}
-        {past.length === 0 && <p>No past appointments.</p>}
-
-        {/* Past appointments list */}
-        <ul className="appointment-list">
-          {past.map((a) => (
-            <li key={a.id} className="appointment-item">
-              <strong>{a.title}</strong>
-              <br />
-              <small>{a.date}</small>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
->>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d

@@ -1,18 +1,37 @@
-<<<<<<< HEAD
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSleep } from "../../context/SleepContext";
 import { useAuth } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import HistoryItem from "../../components/common/HistoryItem";
+import EditSleepModal from "../../components/features/EditSleepModal";
+import { putJson, deleteJson } from "../../services/api";
 
 export default function SleepHistory() {
-  const { token } = useAuth();
-  const { sleepData, loading, loadHistory } = useSleep();
+  const { isAuthenticated, token } = useAuth();
+  const { sleepEntries, loading, loadHistory } = useSleep();
+
+  const [editing, setEditing] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) loadHistory();
+    if (token) loadHistory(token);
   }, [token]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  async function handleSave(updated) {
+    await putJson(`/sleep/${updated.id}`, updated, token);
+    loadHistory(token);
+    setEditOpen(false);
+    setEditing(null);
+  }
+
+  async function handleDelete(item) {
+    await deleteJson(`/sleep/${item.id}`, token);
+    loadHistory(token);
+  }
 
   return (
     <div className="page">
@@ -21,61 +40,41 @@ export default function SleepHistory() {
 
         {loading && <p>Loading...</p>}
 
-        <ul className="sleep-list">
-          {sleepData.map((s) => (
-            <li key={s.id} className="sleep-item">
-              <strong>{s.hours_slept} hrs</strong>
-              <br />
-              <small>{s.sleep_date}</small>
-            </li>
+        <ul className="activity-list">
+          {sleepEntries.map((s) => (
+            <HistoryItem
+              key={s.id}
+              item={s}
+              onEdit={(item) => {
+                setEditing(item);
+                setEditOpen(true);
+              }}
+              onDelete={handleDelete}
+              renderContent={(item) => (
+                <>
+                  <strong>{item.hours_slept} hours</strong>
+                  <br />
+                  <small>{item.sleep_date}</small>
+                </>
+              )}
+            />
           ))}
         </ul>
+
+        {/* Bottom back button */}
+        <div className="btn-center" style={{ marginTop: "2rem" }}>
+          <button className="btn" onClick={() => navigate("/sleep")}>
+            ← Back
+          </button>
+        </div>
+
+        <EditSleepModal
+          open={editOpen}
+          sleep={editing}
+          onSave={handleSave}
+          onClose={() => setEditOpen(false)}
+        />
       </div>
     </div>
   );
 }
-=======
-/**
- *
- * Responsibilities:
- * - Display ALL sleep entries recorded by the user.
- * - Present entries in reverse chronological order (newest first).
- * - Retrieve shared sleep data from SleepContext.
- * Design Notes:
- * - Uses a simple list layout for readability.
- * - History pages intentionally avoid modals or forms to keep
- *   the focus on reviewing past data.
- */
-
-import { useSleep } from "../../context/SleepContext";
-
-export default function SleepHistory() {
-  // Access global sleep data from SleepContext
-  const { sleepData } = useSleep();
-
-  /**
-   * Reverse the array to show newest → oldest.
-   * sleepData is not mutated because we spread into a new array.
-   */
-  const sorted = [...sleepData].reverse();
-
-  return (
-    <div className="page">
-      <div className="page__content">
-        <h2>Sleep History</h2>
-
-        {/* Full sleep history list */}
-        <ul className="sleep-list">
-          {sorted.map((s) => (
-            <li key={s.id} className="sleep-item">
-              <strong>{s.totalHours} hrs</strong>
-              <br />
-              <small>{s.date}</small>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
->>>>>>> c2d5a7186b0cd3d7657a3ffe8873d7665b9f319d
