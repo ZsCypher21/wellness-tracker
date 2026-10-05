@@ -16,13 +16,14 @@ import { useMeditation } from "../../context/MeditationContext";
 
 import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import { toInputDate } from "../../utils/date";
 
 export default function MeditationForm({ onSubmit }) {
   const { addMeditation, loading, error } = useMeditation();
 
   const [form, setForm] = useState({
     duration: "",
-    date: "",
+    date: toInputDate(),
   });
 
   function handleChange(e) {
@@ -32,8 +33,9 @@ export default function MeditationForm({ onSubmit }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    await addMeditation(form);
-    onSubmit();
+    const res = await addMeditation(form);
+    // only close the modal if the save worked; otherwise the error stays visible
+    if (res) onSubmit();
   }
 
   return (
@@ -47,10 +49,13 @@ export default function MeditationForm({ onSubmit }) {
       <div className="form-row">
         <label>Duration (mins)</label>
         <input
+          type="number"
+          min="1"
           name="duration"
           value={form.duration}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
@@ -62,6 +67,7 @@ export default function MeditationForm({ onSubmit }) {
           value={form.date}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 

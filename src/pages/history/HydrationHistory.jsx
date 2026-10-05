@@ -1,3 +1,4 @@
+// src/pages/history/HydrationHistory.jsx
 import { useEffect, useState } from "react";
 import { useHydration } from "../../context/HydrationContext";
 import { useAuth } from "../../context/AuthContext";
@@ -10,6 +11,7 @@ import Loading from "../../components/ui/Loading";
 import ErrorMessage from "../../components/ui/ErrorMessage";
 
 import { putJson, deleteJson } from "../../services/api";
+import { formatDate } from "../../utils/date";
 import { formatLiters } from "../../utils/format";
 
 export default function HydrationHistory() {
@@ -18,15 +20,17 @@ export default function HydrationHistory() {
 
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (token) loadHistory(token);
-  }, [token]);
+  }, [token, loadHistory]);
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
+  // Throws on failure so the edit modal can show the error
   async function handleSave(updated) {
     await putJson(`/hydration/${updated.id}`, updated, token);
     await loadHistory(token);
@@ -35,8 +39,14 @@ export default function HydrationHistory() {
   }
 
   async function handleDelete(item) {
-    await deleteJson(`/hydration/${item.id}`, token);
-    await loadHistory(token);
+    if (!window.confirm("Delete this entry?")) return;
+    try {
+      setActionError(null);
+      await deleteJson(`/hydration/${item.id}`, token);
+      await loadHistory(token);
+    } catch (err) {
+      setActionError(err.message || "Failed to delete entry.");
+    }
   }
 
   return (
@@ -46,16 +56,17 @@ export default function HydrationHistory() {
 
         {loading && <Loading />}
         {error && <ErrorMessage message={error} />}
+        {actionError && <ErrorMessage message={actionError} />}
 
         {!loading && !error && hydrationData.length === 0 && (
           <p className="empty-state">No hydration entries yet.</p>
         )}
 
         <ul className="activity-list">
-          {hydrationData.map((h) => (
+          {hydrationData.map((entry) => (
             <HistoryItem
-              key={h.id}
-              item={h}
+              key={entry.id}
+              item={entry}
               onEdit={(item) => {
                 setEditing(item);
                 setEditOpen(true);
@@ -65,7 +76,7 @@ export default function HydrationHistory() {
                 <>
                   <strong>{formatLiters(item.liters)} L</strong>
                   <br />
-                  <small>{item.hydration_date}</small>
+                  <small>{formatDate(item.hydration_date)}</small>
                 </>
               )}
             />

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useActivities } from "../../context/ActivityContext";
 import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import { toInputDate } from "../../utils/date";
 
 export default function ActivityForm({ onSubmit }) {
   const { addActivity, loading, error } = useActivities();
@@ -21,7 +22,7 @@ export default function ActivityForm({ onSubmit }) {
   const [form, setForm] = useState({
     type: "",
     duration: "",
-    date: "",
+    date: toInputDate(),
   });
 
   function handleChange(e) {
@@ -31,8 +32,9 @@ export default function ActivityForm({ onSubmit }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    await addActivity(form);
-    onSubmit();
+    const res = await addActivity(form);
+    // only close the modal if the save worked; otherwise the error stays visible
+    if (res) onSubmit();
   }
 
   return (
@@ -47,16 +49,20 @@ export default function ActivityForm({ onSubmit }) {
           value={form.type}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
       <div className="form-row">
         <label>Duration (mins)</label>
         <input
+          type="number"
+          min="1"
           name="duration"
           value={form.duration}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
@@ -68,6 +74,7 @@ export default function ActivityForm({ onSubmit }) {
           value={form.date}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 

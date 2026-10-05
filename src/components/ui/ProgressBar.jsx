@@ -1,3 +1,6 @@
+// avoid showing floating-point noise like 2.3000000000000003
+const round = (n) => Math.round(Number(n || 0) * 10) / 10;
+
 export default function ProgressBar({ label, value = 0, target = 0 }) {
   const percentage =
     target > 0 ? Math.min((value / target) * 100, 100) : 0;
@@ -10,12 +13,12 @@ export default function ProgressBar({ label, value = 0, target = 0 }) {
     <div className="progress-bar-wrapper">
       <div className="progress-bar-header">
         <span className="progress-label">{label}</span>
-        <span className="progress-value">{value} / {target}</span>
+        <span className="progress-value">{round(value)} / {round(target)}</span>
       </div>
 
       <div
         className="progress-bar-container"
-        title={`${value} / ${target}`}
+        title={`${round(value)} / ${round(target)}`}
       >
         <div
           className="progress-bar-fill"

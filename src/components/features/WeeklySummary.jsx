@@ -1,45 +1,26 @@
+/**
+ * Weekly totals for the Progress page (today + previous 6 days).
+ * Uses the real API field names (activity_date, hours_slept, liters, ...).
+ */
 import { useActivities } from "../../context/ActivityContext";
 import { useSleep } from "../../context/SleepContext";
 import { useMeditation } from "../../context/MeditationContext";
 import { useHydration } from "../../context/HydrationContext";
 import { useAppointments } from "../../context/AppointmentContext";
 import { formatLiters } from "../../utils/format";
+import { isWithinLastWeek, toInputDate } from "../../utils/date";
 
 export default function WeeklySummary() {
   const { activities = [] } = useActivities();
-  const { sleepData = [] } = useSleep();
-  const { meditations = [] } = useMeditation();
-  const { hydrationData = [] } = useHydration();
+  const { sleepEntries = [], weeklySleepHours = 0 } = useSleep();
+  const { weeklyMeditationMinutes = 0 } = useMeditation();
+  const { weeklyHydrationLiters = 0 } = useHydration();
   const { appointments = [] } = useAppointments();
 
-  const now = new Date();
-  const weekAgo = new Date();
-  weekAgo.setDate(now.getDate() - 7);
-
-  function isThisWeek(dateStr) {
-    const d = new Date(dateStr);
-    return d >= weekAgo && d <= now;
-  }
-
-  const weeklyActivities = activities.filter(a => isThisWeek(a.date));
-  const weeklySleep = sleepData.filter(s => isThisWeek(s.date));
-  const weeklyMeditation = meditations.filter(m => isThisWeek(m.date));
-  const weeklyHydration = hydrationData.filter(h => isThisWeek(h.date));
-  const weeklyAppointments = appointments.filter(a => isThisWeek(a.date));
-
-  const totalSleepHours = weeklySleep.reduce(
-    (sum, s) => sum + Number(s.totalHours || 0),
-    0
-  );
-
-  const totalMeditationMinutes = weeklyMeditation.reduce(
-    (sum, m) => sum + Number(m.duration || 0),
-    0
-  );
-
-  const totalHydrationLiters = weeklyHydration.reduce(
-    (sum, h) => sum + Number(h.liters || 0),
-    0
+  const weeklyActivities = activities.filter((a) => isWithinLastWeek(a.activity_date));
+  const weeklySleepNights = sleepEntries.filter((s) => isWithinLastWeek(s.sleep_date)).length;
+  const weeklyAppointments = appointments.filter((a) =>
+    a.appointment_datetime && isWithinLastWeek(toInputDate(new Date(a.appointment_datetime)))
   );
 
   return (
@@ -47,9 +28,12 @@ export default function WeeklySummary() {
       <h3>This Week’s Summary</h3>
 
       <p><strong>Activities logged:</strong> {weeklyActivities.length}</p>
-      <p><strong>Total sleep:</strong> {totalSleepHours.toFixed(1)} hrs</p>
-      <p><strong>Meditation:</strong> {totalMeditationMinutes} mins</p>
-      <p><strong>Hydration:</strong> {formatLiters(totalHydrationLiters)} L</p>
+      <p>
+        <strong>Total sleep:</strong> {weeklySleepHours.toFixed(1)} hrs
+        {weeklySleepNights > 0 && ` (avg ${(weeklySleepHours / weeklySleepNights).toFixed(1)} hrs/night)`}
+      </p>
+      <p><strong>Meditation:</strong> {weeklyMeditationMinutes} mins</p>
+      <p><strong>Hydration:</strong> {formatLiters(weeklyHydrationLiters)} L</p>
       <p><strong>Appointments:</strong> {weeklyAppointments.length}</p>
     </div>
   );

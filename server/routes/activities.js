@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { sendDbError } = require('../utils/errors');
 const auth = require('../middleware/authMiddleware');
 
 // ADD ACTIVITY
@@ -27,7 +28,7 @@ router.post('/add', auth, async (req, res) => {
 
   } catch (err) {
     console.error("ADD ACTIVITY ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -37,6 +38,10 @@ router.put('/:id', auth, async (req, res) => {
     const userId = req.user.user_id;
     const { id } = req.params;
     const { activity_type, duration_minutes, activity_date } = req.body;
+
+    if (!activity_type || !duration_minutes || !activity_date) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const updated = await pool.query(
       `UPDATE activities
@@ -55,7 +60,7 @@ router.put('/:id', auth, async (req, res) => {
     res.json(updated.rows[0]);
   } catch (err) {
     console.error("UPDATE ACTIVITY ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -77,7 +82,7 @@ router.delete('/:id', auth, async (req, res) => {
     res.json({ message: "Activity deleted" });
   } catch (err) {
     console.error("DELETE ACTIVITY ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -99,7 +104,7 @@ router.get('/recent', auth, async (req, res) => {
 
   } catch (err) {
     console.error("RECENT ACTIVITIES ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -120,7 +125,7 @@ router.get('/history', auth, async (req, res) => {
 
   } catch (err) {
     console.error("ACTIVITY HISTORY ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 

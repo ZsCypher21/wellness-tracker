@@ -7,12 +7,14 @@ import EditAppointmentModal from "../components/features/EditAppointmentModal";
 import HistoryItem from "../components/common/HistoryItem";
 import Loading from "../components/ui/Loading";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Appointments() {
   const { token } = useAuth();
   const { upcoming, loading, error, loadUpcoming, updateAppointment, deleteAppointment } =
     useAppointments();
+
+  const navigate = useNavigate();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -20,9 +22,9 @@ export default function Appointments() {
 
   useEffect(() => {
     if (token) loadUpcoming();
-  }, [token]);
+  }, [token, loadUpcoming]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!token) return <Navigate to="/login" replace />;
 
   return (
     <div className="page">
@@ -45,14 +47,16 @@ export default function Appointments() {
                 setEditing(a);
                 setEditOpen(true);
               }}
-              onDelete={() => deleteAppointment(a.id)}
+              onDelete={() => {
+                if (window.confirm("Delete this appointment?")) deleteAppointment(a.id);
+              }}
               renderContent={(item) => (
                 <>
                   <strong>{item.appointment_type}</strong>
                   <br />
                   {item.description && <small>{item.description}</small>}
                   <br />
-                  <small>{new Date(item.appointment_datetime).toLocaleString()}</small>
+                  <small>{new Date(item.appointment_datetime).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short" })}</small>
                 </>
               )}
             />
@@ -64,7 +68,7 @@ export default function Appointments() {
             Add Appointment
           </button>
 
-          <button className="btn" onClick={() => (window.location.href = "/appointments/history")}>
+          <button className="btn" onClick={() => navigate("/appointments/history")}>
             Past Appointments
           </button>
         </div>
@@ -77,9 +81,11 @@ export default function Appointments() {
         <EditAppointmentModal
           open={editOpen}
           appointment={editing}
-          onSave={(updated) => {
-            updateAppointment(editing.id, updated);
+          onSave={async (updated) => {
+            const ok = await updateAppointment(updated.id, updated);
+            if (!ok) throw new Error("Failed to update appointment.");
             setEditOpen(false);
+            setEditing(null);
           }}
           onClose={() => setEditOpen(false)}
         />

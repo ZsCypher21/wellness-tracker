@@ -1,34 +1,33 @@
+/**
+ * Breakdown of logged activities by type (count + total minutes).
+ */
 import { useActivities } from "../../context/ActivityContext";
-import { useMeditation } from "../../context/MeditationContext";
 
 export default function CategoryBreakdown() {
   const { activities = [] } = useActivities();
-  const { meditations = [] } = useMeditation();
 
-  const activityTypes = {};
-  activities.forEach(a => {
-    activityTypes[a.type] = (activityTypes[a.type] || 0) + 1;
+  const byType = {};
+  activities.forEach((a) => {
+    // normalise "running" / "Running " into one category
+    const raw = (a.activity_type || "Other").trim();
+    const key = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+    if (!byType[key]) byType[key] = { count: 0, minutes: 0 };
+    byType[key].count += 1;
+    byType[key].minutes += Number(a.duration_minutes || 0);
   });
 
-  const meditationTypes = {};
-  meditations.forEach(m => {
-    meditationTypes[m.type] = (meditationTypes[m.type] || 0) + 1;
-  });
+  const rows = Object.entries(byType).sort((a, b) => b[1].minutes - a[1].minutes);
 
   return (
     <div className="progress-card">
       <h3>Category Breakdown</h3>
 
       <h4>Activities</h4>
-      {Object.keys(activityTypes).length === 0 && <p>No activities logged.</p>}
-      {Object.entries(activityTypes).map(([type, count]) => (
-        <p key={type}>{type}: {count}</p>
-      ))}
-
-      <h4>Meditation</h4>
-      {Object.keys(meditationTypes).length === 0 && <p>No meditation logged.</p>}
-      {Object.entries(meditationTypes).map(([type, count]) => (
-        <p key={type}>{type}: {count}</p>
+      {rows.length === 0 && <p>No activities logged.</p>}
+      {rows.map(([type, { count, minutes }]) => (
+        <p key={type}>
+          {type}: {count} {count === 1 ? "session" : "sessions"}, {minutes} mins
+        </p>
       ))}
     </div>
   );

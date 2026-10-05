@@ -1,12 +1,12 @@
 // src/context/ProfileContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getJson, postJson } from "../services/api";
 import { useAuth } from "./AuthContext";
 
 const ProfileContext = createContext();
 
 export function ProfileProvider({ children }) {
-  const { token, user } = useAuth();
+  const { token, updateUser } = useAuth();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export function ProfileProvider({ children }) {
   // ---------------------------------------------------------
   // LOAD PROFILE
   // ---------------------------------------------------------
-  async function loadProfile() {
+  const loadProfile = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -28,23 +28,23 @@ export function ProfileProvider({ children }) {
         name: data.name || "",
         email: data.email || "",
         bio: data.bio || "",
-        sleep_goal: data.sleep_goal || 0,
-        hydration_goal: data.hydration_goal || 0,
-        meditation_goal: data.meditation_goal || 0,
-        activity_goal: data.activity_goal || 0,
+        sleep_goal: Number(data.sleep_goal) || 0,
+        hydration_goal: Number(data.hydration_goal) || 0,
+        meditation_goal: Number(data.meditation_goal) || 0,
+        activity_goal: Number(data.activity_goal) || 0,
       });
     } catch (err) {
       setError(err.message || "Failed to load profile.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [token]);
 
   // ---------------------------------------------------------
-  // UPDATE PROFILE
+  // UPDATE PROFILE (returns true on success)
   // ---------------------------------------------------------
   async function updateProfile(updatedFields) {
-    if (!token) return;
+    if (!token) return false;
 
     try {
       setLoading(true);
@@ -52,20 +52,35 @@ export function ProfileProvider({ children }) {
 
       await postJson("/profile/update", updatedFields, token);
 
+      // keep the name in the navbar in sync
+      if (updatedFields.name && updatedFields.name.trim()) {
+        updateUser({ name: updatedFields.name.trim() });
+      }
+
       await loadProfile();
+      return true;
     } catch (err) {
       setError(err.message || "Failed to update profile.");
+      return false;
     } finally {
       setLoading(false);
     }
   }
 
   // ---------------------------------------------------------
-  // AUTO LOAD PROFILE ON LOGIN
+  // AUTO LOAD ON LOGIN / CLEAR ON LOGOUT
   // ---------------------------------------------------------
+  // Fetching data when the user logs in is a legitimate effect.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (token) loadProfile();
-  }, [token]);
+    if (token) {
+      loadProfile();
+    } else {
+      setProfile(null);
+      setError(null);
+    }
+  }, [token, loadProfile]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <ProfileContext.Provider
@@ -73,6 +88,7 @@ export function ProfileProvider({ children }) {
         profile,
         loading,
         error,
+        clearError: () => setError(null),
         loadProfile,
         updateProfile,
       }}
@@ -82,6 +98,7 @@ export function ProfileProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useProfile() {
   return useContext(ProfileContext);
 }

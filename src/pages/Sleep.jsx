@@ -7,35 +7,46 @@ import EditSleepModal from "../components/features/EditSleepModal";
 import HistoryItem from "../components/common/HistoryItem";
 import Loading from "../components/ui/Loading";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { putJson, deleteJson } from "../services/api";
+import { formatDate } from "../utils/date";
 
 export default function Sleep() {
   const { token } = useAuth();
   const { sleepEntries, loading, error, loadRecent } = useSleep();
+  const navigate = useNavigate();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   useEffect(() => {
     if (token) loadRecent();
-  }, [token]);
+  }, [token, loadRecent]);
 
-  if (!token) return <Navigate to="/login" />;
+  if (!token) return <Navigate to="/login" replace />;
 
-  const recent = [...sleepEntries].slice(0, 5);
+  // newest 5 entries (API returns newest first)
+  const recent = sleepEntries.slice(0, 5);
 
+  // Throws on failure so the edit modal can show the error
   async function handleSave(updated) {
     await putJson(`/sleep/${updated.id}`, updated, token);
-    loadRecent();
+    await loadRecent();
     setEditOpen(false);
     setEditing(null);
   }
 
   async function handleDelete(item) {
-    await deleteJson(`/sleep/${item.id}`, token);
-    loadRecent();
+    if (!window.confirm("Delete this entry?")) return;
+    try {
+      setActionError(null);
+      await deleteJson(`/sleep/${item.id}`, token);
+      await loadRecent();
+    } catch (err) {
+      setActionError(err.message || "Failed to delete entry.");
+    }
   }
 
   return (
@@ -45,16 +56,17 @@ export default function Sleep() {
 
         {loading && <Loading />}
         {error && <ErrorMessage message={error} />}
+        {actionError && <ErrorMessage message={actionError} />}
 
         {!loading && !error && recent.length === 0 && (
           <p className="empty-state">No sleep entries yet.</p>
         )}
 
         <ul className="activity-list">
-          {recent.map((s) => (
+          {recent.map((entry) => (
             <HistoryItem
-              key={s.id}
-              item={s}
+              key={entry.id}
+              item={entry}
               onEdit={(item) => {
                 setEditing(item);
                 setEditOpen(true);
@@ -64,7 +76,7 @@ export default function Sleep() {
                 <>
                   <strong>{item.hours_slept} hours</strong>
                   <br />
-                  <small>{item.sleep_date}</small>
+                  <small>{formatDate(item.sleep_date)}</small>
                 </>
               )}
             />
@@ -76,7 +88,7 @@ export default function Sleep() {
             Add Sleep Entry
           </button>
 
-          <button className="btn" onClick={() => (window.location.href = "/sleep/history")}>
+          <button className="btn" onClick={() => navigate("/sleep/history")}>
             History
           </button>
         </div>

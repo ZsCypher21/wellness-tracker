@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useProfile } from "../context/ProfileContext";
 import { useAuth } from "../context/AuthContext";
 import Loading from "../components/ui/Loading";
@@ -20,23 +20,10 @@ export default function Profile() {
 
   const [editMode, setEditMode] = useState(false);
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name || "",
-        bio: profile.bio || "",
-        sleep_goal: profile.sleep_goal || 0,
-        hydration_goal: profile.hydration_goal || 0,
-        meditation_goal: profile.meditation_goal || 0,
-        activity_goal: profile.activity_goal || 0,
-      });
-    }
-  }, [profile]);
-
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  if (loading) return <Loading />;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading && !profile) return <Loading />;
+  if (error && !profile) return <ErrorMessage message={error} />;
 
   if (!profile) {
     return <p className="empty-state">No profile data found.</p>;
@@ -46,16 +33,33 @@ export default function Profile() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  // Copy the current profile into the form when entering edit mode
+  function startEditing() {
+    setForm({
+      name: profile.name || "",
+      bio: profile.bio || "",
+      sleep_goal: profile.sleep_goal || 0,
+      hydration_goal: profile.hydration_goal || 0,
+      meditation_goal: profile.meditation_goal || 0,
+      activity_goal: profile.activity_goal || 0,
+    });
+    setEditMode(true);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    await updateProfile(form);
-    setEditMode(false);
+    const ok = await updateProfile(form);
+    // stay in edit mode if saving failed so changes aren't lost
+    if (ok) setEditMode(false);
   }
 
   return (
     <div className="page">
       <div className="page__content">
         <h2>Your Profile</h2>
+
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
         {/* READ MODE */}
         {!editMode && (
@@ -73,7 +77,7 @@ export default function Profile() {
             <p><strong>Activity:</strong> {profile.activity_goal} mins/week</p>
 
             <div className="btn-center">
-              <button className="btn-primary" onClick={() => setEditMode(true)}>
+              <button className="btn-primary" onClick={startEditing}>
                 Edit Profile
               </button>
             </div>
@@ -92,6 +96,7 @@ export default function Profile() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -121,6 +126,8 @@ export default function Profile() {
                 <label>Sleep Goal (hours/week)</label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   name="sleep_goal"
                   value={form.sleep_goal}
                   onChange={handleChange}
@@ -131,6 +138,8 @@ export default function Profile() {
                 <label>Hydration Goal (liters/week)</label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   name="hydration_goal"
                   value={form.hydration_goal}
                   onChange={handleChange}
@@ -141,6 +150,8 @@ export default function Profile() {
                 <label>Meditation Goal (minutes/week)</label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   name="meditation_goal"
                   value={form.meditation_goal}
                   onChange={handleChange}
@@ -151,6 +162,8 @@ export default function Profile() {
                 <label>Activity Goal (minutes/week)</label>
                 <input
                   type="number"
+                  min="0"
+                  step="any"
                   name="activity_goal"
                   value={form.activity_goal}
                   onChange={handleChange}
@@ -159,12 +172,12 @@ export default function Profile() {
             </div>
 
             <div className="btn-center">
-              <button className="btn-primary" type="submit">
-                Save Changes
+              <button className="btn-primary" type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Save Changes"}
               </button>
 
               <button
-                className="btn-secondary"
+                className="btn"
                 type="button"
                 onClick={() => setEditMode(false)}
                 style={{ marginLeft: "10px" }}

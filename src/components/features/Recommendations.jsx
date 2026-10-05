@@ -1,59 +1,55 @@
 /**
- * Simple rule‑based recommendation engine for the Progress page.
- *
- * Notes:
- * - This component does not compute metrics; it only checks
- *   dataset lengths and displays helpful nudges.
- * - Each recommendation is intentionally lightweight and easy
- *   to expand later (e.g., adding thresholds or more categories).
- *
- * Responsibilities:
- * - Retrieve all wellness datasets from their contexts.
- * - Display personalized suggestions based on weekly activity levels.
- * - Provide gentle guidance without enforcing strict goals.
+ * Simple rule-based recommendations for the Progress page.
+ * Compares this week's totals with the goals set on the Profile page
+ * (falls back to sensible defaults when no goal is set).
  */
-
-import { useActivities } from '../../context/ActivityContext';
-import { useSleep } from '../../context/SleepContext';
+import { useSleep } from "../../context/SleepContext";
 import { useMeditation } from "../../context/MeditationContext";
-import { useHydration } from '../../context/HydrationContext';
-import { useAppointments } from '../../context/AppointmentContext';
+import { useHydration } from "../../context/HydrationContext";
+import { useActivities } from "../../context/ActivityContext";
+import { useAppointments } from "../../context/AppointmentContext";
+import { useProfile } from "../../context/ProfileContext";
 
 export default function Recommendations() {
-  // Safe defaults ensure the component never crashes on initial render
-  const { activities = [] } = useActivities();
-  const { sleepData = [] } = useSleep();
-  const { meditations = [] } = useMeditation();
-  const { hydrationData = [] } = useHydration();
-  const { appointments = [] } = useAppointments();
+  const { weeklySleepHours = 0 } = useSleep();
+  const { weeklyMeditationMinutes = 0 } = useMeditation();
+  const { weeklyHydrationLiters = 0 } = useHydration();
+  const { weeklyActivityMinutes = 0 } = useActivities();
+  const { upcoming = [] } = useAppointments();
+  const { profile } = useProfile();
+
+  // weekly targets: profile goal if set, otherwise a general guideline
+  const goals = {
+    sleep: profile?.sleep_goal || 49, // 7 hrs x 7 nights
+    hydration: profile?.hydration_goal || 14, // 2 L x 7 days
+    meditation: profile?.meditation_goal || 70, // 10 mins x 7 days
+    activity: profile?.activity_goal || 150, // WHO weekly guideline
+  };
+
+  const tips = [];
+  if (weeklySleepHours < goals.sleep) {
+    tips.push("Try to improve your sleep routine — aim for consistent hours each night.");
+  }
+  if (weeklyHydrationLiters < goals.hydration) {
+    tips.push("Increase your water intake — small, frequent drinks help.");
+  }
+  if (weeklyMeditationMinutes < goals.meditation) {
+    tips.push("Consider adding short meditation sessions to reduce stress.");
+  }
+  if (weeklyActivityMinutes < goals.activity) {
+    tips.push("Boost your activity levels — even light exercise makes a difference.");
+  }
+  if (upcoming.length === 0) {
+    tips.push("No upcoming appointments — check if any check-ups or follow-ups are due.");
+  }
 
   return (
     <div className="progress-card">
       <h3>Personalized Recommendations</h3>
-
-      {/* Sleep: fewer than 7 entries suggests inconsistency */}
-      {sleepData.length < 7 && (
-        <p>Try to improve your sleep routine — aim for consistent hours.</p>
-      )}
-
-      {/* Hydration: fewer than 7 entries suggests low intake tracking */}
-      {hydrationData.length < 7 && (
-        <p>Increase your water intake — small, frequent hydration helps.</p>
-      )}
-
-      {/* Meditation: fewer than 7 entries suggests low mindfulness activity */}
-      {meditations.length < 7 && (
-        <p>Consider adding short meditation sessions to reduce stress.</p>
-      )}
-
-      {/* Activities: fewer than 3 entries suggests low physical movement */}
-      {activities.length < 3 && (
-        <p>Boost your activity levels — even light exercise makes a difference.</p>
-      )}
-
-      {/* Appointments: none logged this week */}
-      {appointments.length === 0 && (
-        <p>No appointments this week — check if any follow-ups are needed.</p>
+      {tips.length === 0 ? (
+        <p>Great work — you're meeting all your weekly goals!</p>
+      ) : (
+        tips.map((tip) => <p key={tip}>{tip}</p>)
       )}
     </div>
   );

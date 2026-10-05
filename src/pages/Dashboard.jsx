@@ -11,6 +11,7 @@ import ErrorMessage from "../components/ui/ErrorMessage";
 
 import ProgressBar from "../components/ui/ProgressBar";
 import WeeklyWellnessChart from "../components/features/WeeklyWellnessChart";
+import { parseLocalDate } from "../utils/date";
 
 export default function Dashboard() {
   const { profile, loading: profileLoading, error: profileError } = useProfile();
@@ -63,6 +64,7 @@ export default function Dashboard() {
 
   function buildWeeklyWellnessData() {
     const sevenDaysAgo = new Date();
+    sevenDaysAgo.setHours(0, 0, 0, 0);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
     const days = [];
@@ -74,19 +76,19 @@ export default function Dashboard() {
       const dayLabel = d.toLocaleDateString("en-AU", { weekday: "short" });
 
       const sleep = sleepEntries
-        .filter(e => new Date(e.sleep_date).toDateString() === d.toDateString())
+        .filter(e => parseLocalDate(e.sleep_date)?.toDateString() === d.toDateString())
         .reduce((sum, e) => sum + Number(e.hours_slept || 0), 0);
 
       const meditation = meditations
-        .filter(e => new Date(e.meditation_date).toDateString() === d.toDateString())
+        .filter(e => parseLocalDate(e.meditation_date)?.toDateString() === d.toDateString())
         .reduce((sum, e) => sum + Number(e.duration_minutes || 0), 0);
 
       const activity = activities
-        .filter(e => new Date(e.activity_date).toDateString() === d.toDateString())
+        .filter(e => parseLocalDate(e.activity_date)?.toDateString() === d.toDateString())
         .reduce((sum, e) => sum + Number(e.duration_minutes || 0), 0);
 
       const hydration = hydrationData
-        .filter(e => new Date(e.hydration_date).toDateString() === d.toDateString())
+        .filter(e => parseLocalDate(e.hydration_date)?.toDateString() === d.toDateString())
         .reduce((sum, e) => sum + Number(e.liters || 0), 0);
 
       days.push({

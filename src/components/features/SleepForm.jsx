@@ -16,13 +16,14 @@ import { useSleep } from "../../context/SleepContext";
 
 import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import { toInputDate } from "../../utils/date";
 
 export default function SleepForm({ onSubmit }) {
   const { addSleep, loading, error } = useSleep();
 
   const [form, setForm] = useState({
     hours: "",
-    date: "",
+    date: toInputDate(),
   });
 
   function handleChange(e) {
@@ -32,8 +33,9 @@ export default function SleepForm({ onSubmit }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    await addSleep(form);
-    onSubmit();
+    const res = await addSleep(form);
+    // only close the modal if the save worked; otherwise the error stays visible
+    if (res) onSubmit();
   }
 
   return (
@@ -48,10 +50,14 @@ export default function SleepForm({ onSubmit }) {
         <label>Hours Slept</label>
         <input
           type="number"
+          min="0.5"
+          max="24"
+          step="0.5"
           name="hours"
           value={form.hours}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
@@ -63,6 +69,7 @@ export default function SleepForm({ onSubmit }) {
           value={form.date}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 

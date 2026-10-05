@@ -21,8 +21,9 @@ export default function AppointmentForm({ onSubmit }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    await addAppointment(form);
-    onSubmit();
+    const res = await addAppointment(form);
+    // only close the modal if the save worked; otherwise the error stays visible
+    if (res) onSubmit();
   }
 
   return (
@@ -40,6 +41,7 @@ export default function AppointmentForm({ onSubmit }) {
           value={form.appointment_type}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
@@ -61,6 +63,7 @@ export default function AppointmentForm({ onSubmit }) {
           value={form.appointment_datetime}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 

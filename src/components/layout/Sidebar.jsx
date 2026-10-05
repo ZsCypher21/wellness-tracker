@@ -14,11 +14,8 @@
  */
 
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { user } = useAuth(); // Currently unused, but available for future personalization
-
   return (
     <div
       className="sidebar"
@@ -43,6 +40,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <li><Link to="/hydration" onClick={onClose}>Hydration</Link></li>
         <li><Link to="/appointments" onClick={onClose}>Appointments</Link></li>
         <li><Link to="/progress" onClick={onClose}>Progress</Link></li>
+        <li><Link to="/profile" onClick={onClose}>Profile</Link></li>
       </ul>
     </div>
   );

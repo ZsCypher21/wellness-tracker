@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { sendDbError } = require('../utils/errors');
 const auth = require('../middleware/authMiddleware');
 
 // ADD APPOINTMENT
@@ -24,7 +25,7 @@ router.post('/add', auth, async (req, res) => {
 
   } catch (err) {
     console.error("ADD APPOINTMENT ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -46,7 +47,7 @@ router.get('/upcoming', auth, async (req, res) => {
 
   } catch (err) {
     console.error("UPCOMING APPOINTMENTS ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -68,7 +69,7 @@ router.get('/past', auth, async (req, res) => {
 
   } catch (err) {
     console.error("PAST APPOINTMENTS ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -78,6 +79,10 @@ router.put('/:id', auth, async (req, res) => {
     const userId = req.user.user_id;
     const { id } = req.params;
     const { appointment_type, description, appointment_datetime } = req.body;
+
+    if (!appointment_type || !appointment_datetime) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const updated = await pool.query(
       `UPDATE appointments
@@ -97,7 +102,7 @@ router.put('/:id', auth, async (req, res) => {
 
   } catch (err) {
     console.error("UPDATE APPOINTMENT ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -120,7 +125,7 @@ router.delete('/:id', auth, async (req, res) => {
 
   } catch (err) {
     console.error("DELETE APPOINTMENT ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 

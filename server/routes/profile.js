@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const { sendDbError } = require("../utils/errors");
 const auth = require("../middleware/authMiddleware");
 
 // GET PROFILE
@@ -47,9 +48,15 @@ router.get("/", auth, async (req, res) => {
 
   } catch (err) {
     console.error("GET PROFILE ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
+
+// Empty inputs arrive as "" which Postgres can't store in a NUMERIC column
+function toGoal(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
 
 // UPDATE PROFILE
 router.post("/update", auth, async (req, res) => {
@@ -65,10 +72,10 @@ router.post("/update", auth, async (req, res) => {
     } = req.body;
 
     // Update name if provided
-    if (name !== undefined) {
+    if (name !== undefined && String(name).trim() !== "") {
       await pool.query(
         "UPDATE users SET full_name = $1 WHERE id = $2",
-        [name, userId]
+        [String(name).trim(), userId]
       );
     }
 
@@ -89,10 +96,10 @@ router.post("/update", auth, async (req, res) => {
       [
         userId,
         bio || "",
-        sleep_goal ?? 0,
-        hydration_goal ?? 0,
-        meditation_goal ?? 0,
-        activity_goal ?? 0,
+        toGoal(sleep_goal),
+        toGoal(hydration_goal),
+        toGoal(meditation_goal),
+        toGoal(activity_goal),
       ]
     );
 
@@ -100,7 +107,7 @@ router.post("/update", auth, async (req, res) => {
 
   } catch (err) {
     console.error("UPDATE PROFILE ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 

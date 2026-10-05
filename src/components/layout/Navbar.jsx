@@ -34,7 +34,7 @@ export default function Navbar({ onToggleSidebar }) {
       className="navbar__username"
       onClick={() => navigate("/profile")}
     >
-      {user.name}
+      {user.name || "Profile"}
     </span>
 
     <button className="logout-btn" onClick={handleLogout}>

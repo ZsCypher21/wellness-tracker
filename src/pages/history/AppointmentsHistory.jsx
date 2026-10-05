@@ -28,7 +28,7 @@ export default function AppointmentsHistory() {
 
   useEffect(() => {
     if (token) loadPast();
-  }, [token]);
+  }, [token, loadPast]);
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
@@ -37,18 +37,18 @@ export default function AppointmentsHistory() {
       <div className="page__content">
         <h2>Past Appointments</h2>
 
-        {/* ⭐ Loading */}
+        {/*  Loading */}
         {loading && <Loading />}
 
-        {/* ⭐ Error */}
+        {/*  Error */}
         {error && <ErrorMessage message={error} />}
 
-        {/* ⭐ Empty State */}
+        {/*  Empty State */}
         {!loading && !error && past.length === 0 && (
           <p className="empty-state">No past appointments yet.</p>
         )}
 
-        {/* ⭐ List */}
+        {/*  List */}
         <ul className="appointment-list">
           {past.map((a) => (
             <HistoryItem
@@ -58,34 +58,38 @@ export default function AppointmentsHistory() {
                 setEditing(a);
                 setEditOpen(true);
               }}
-              onDelete={() => deleteAppointment(a.id)}
+              onDelete={() => {
+                if (window.confirm("Delete this appointment?")) deleteAppointment(a.id);
+              }}
               renderContent={(item) => (
                 <>
                   <strong>{item.appointment_type}</strong>
                   <br />
                   {item.description && <small>{item.description}</small>}
                   <br />
-                  <small>{new Date(item.appointment_datetime).toLocaleString()}</small>
+                  <small>{new Date(item.appointment_datetime).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short" })}</small>
                 </>
               )}
             />
           ))}
         </ul>
 
-        {/* ⭐ Back button */}
+        {/*  Back button */}
         <div className="btn-center" style={{ marginTop: "2rem" }}>
           <button className="btn" onClick={() => navigate("/appointments")}>
             ← Back
           </button>
         </div>
 
-        {/* ⭐ Edit Modal */}
+        {/*  Edit Modal */}
         <EditAppointmentModal
           open={editOpen}
           appointment={editing}
-          onSave={(updated) => {
-            updateAppointment(editing.id, updated);
+          onSave={async (updated) => {
+            const ok = await updateAppointment(updated.id, updated);
+            if (!ok) throw new Error("Failed to update appointment.");
             setEditOpen(false);
+            setEditing(null);
           }}
           onClose={() => setEditOpen(false)}
         />

@@ -1,7 +1,8 @@
 // src/context/AppointmentContext.jsx
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getJson, postJson, putJson, deleteJson } from "../services/api";
 import { useAuth } from "./AuthContext";
+import { localDateTimeToIso } from "../utils/date";
 
 const AppointmentContext = createContext();
 
@@ -16,7 +17,7 @@ export function AppointmentProvider({ children }) {
   // ---------------------------------------------------------
   // LOAD UPCOMING APPOINTMENTS
   // ---------------------------------------------------------
-  async function loadUpcoming() {
+  const loadUpcoming = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -30,12 +31,12 @@ export function AppointmentProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [token]);
 
   // ---------------------------------------------------------
   // LOAD PAST APPOINTMENTS
   // ---------------------------------------------------------
-  async function loadPast() {
+  const loadPast = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -49,13 +50,16 @@ export function AppointmentProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [token]);
 
   // ---------------------------------------------------------
   // ADD NEW APPOINTMENT
+  // The form gives local time ("2026-10-06T14:30"); send it as a UTC ISO
+  // string so the server stores the correct moment regardless of timezone.
+  // Returns the response on success, null on failure.
   // ---------------------------------------------------------
   async function addAppointment({ appointment_type, description, appointment_datetime }) {
-    if (!token) return;
+    if (!token) return null;
 
     try {
       setLoading(true);
@@ -63,35 +67,49 @@ export function AppointmentProvider({ children }) {
 
       const res = await postJson(
         "/appointments/add",
-        { appointment_type, description, appointment_datetime },
+        {
+          appointment_type,
+          description,
+          appointment_datetime: localDateTimeToIso(appointment_datetime),
+        },
         token
       );
 
-      await loadUpcoming();
+      await Promise.all([loadUpcoming(), loadPast()]);
       return res;
     } catch (err) {
       setError(err.message || "Failed to add appointment.");
+      return null;
     } finally {
       setLoading(false);
     }
   }
 
   // ---------------------------------------------------------
-  // UPDATE APPOINTMENT
+  // UPDATE APPOINTMENT (returns true on success)
   // ---------------------------------------------------------
   async function updateAppointment(id, updated) {
-    if (!token) return;
+    if (!token) return false;
 
     try {
       setLoading(true);
       setError(null);
 
-      await putJson(`/appointments/${id}`, updated, token);
+      await putJson(
+        `/appointments/${id}`,
+        {
+          appointment_type: updated.appointment_type,
+          description: updated.description,
+          appointment_datetime: localDateTimeToIso(updated.appointment_datetime),
+        },
+        token
+      );
 
-      await loadUpcoming();
-      await loadPast();
+      await Promise.all([loadUpcoming(), loadPast()]);
+      return true;
     } catch (err) {
       setError(err.message || "Failed to update appointment.");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -109,8 +127,7 @@ export function AppointmentProvider({ children }) {
 
       await deleteJson(`/appointments/${id}`, token);
 
-      await loadUpcoming();
-      await loadPast();
+      await Promise.all([loadUpcoming(), loadPast()]);
     } catch (err) {
       setError(err.message || "Failed to delete appointment.");
     } finally {
@@ -119,19 +136,32 @@ export function AppointmentProvider({ children }) {
   }
 
   // ---------------------------------------------------------
-  // AUTO LOAD UPCOMING ON LOGIN
+  // AUTO LOAD ON LOGIN / CLEAR ON LOGOUT
   // ---------------------------------------------------------
+  // Fetching data when the user logs in is a legitimate effect.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (token) loadUpcoming();
-  }, [token]);
+    if (token) {
+      loadUpcoming();
+      loadPast();
+    } else {
+      setUpcoming([]);
+      setPast([]);
+      setError(null);
+    }
+  }, [token, loadUpcoming, loadPast]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <AppointmentContext.Provider
       value={{
         upcoming,
         past,
+        // all appointments, used by the Progress page
+        appointments: [...upcoming, ...past],
         loading,
         error,
+        clearError: () => setError(null),
         loadUpcoming,
         loadPast,
         addAppointment,
@@ -144,6 +174,7 @@ export function AppointmentProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppointments() {
   return useContext(AppointmentContext);
 }

@@ -3,18 +3,20 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
+const { sendDbError } = require('../utils/errors');
 
 // REGISTER
 router.post('/register', async (req, res) => {
   try {
-    const { full_name, email, password } = req.body;
+    const { full_name, password } = req.body;
+    const email = String(req.body.email || "").trim().toLowerCase();
 
     if (!full_name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const existing = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
+      "SELECT id FROM users WHERE LOWER(email) = $1",
       [email]
     );
 
@@ -49,21 +51,22 @@ router.post('/register', async (req, res) => {
 
   } catch (err) {
     console.error("REGISTER ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
 // LOGIN
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = String(req.body.email || "").trim().toLowerCase();
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
     }
 
     const userRes = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT * FROM users WHERE LOWER(email) = $1",
       [email]
     );
 
@@ -96,7 +99,7 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 

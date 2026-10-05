@@ -42,7 +42,7 @@ import AppointmentsHistory from "./pages/history/AppointmentsHistory";
 // Progress dashboard
 import Progress from "./pages/Progress";
 
-// ⭐ NEW — Profile page
+// Profile page
 import Profile from "./pages/Profile";
 
 // Route guard
@@ -61,7 +61,7 @@ export default function App() {
   /**
    * Hide Navbar + Footer on login page
    */
-  const hideLayout = location.pathname === "/login";
+  const hideLayout = location.pathname === "/login" || location.pathname === "/";
 
   return (
     <>
@@ -192,7 +192,7 @@ export default function App() {
           }
         />
 
-        {/* ⭐ NEW — Profile Route */}
+        {/* Profile Route */}
         <Route
           path="/profile"
           element={

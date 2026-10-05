@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { postJson } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import Modal from "../components/ui/Modal";
 import RegisterForm from "../components/features/RegisterForm";
 import Loading from "../components/ui/Loading";
@@ -16,8 +16,11 @@ export default function Login() {
 
   const [showRegister, setShowRegister] = useState(false);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Already logged in (e.g. visiting "/" with a saved session) -> go to the dashboard
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   async function submit(e) {
     e.preventDefault();
@@ -30,7 +33,7 @@ export default function Login() {
 
       if (res.token) {
         login(res.token, res.user);
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } else {
         setError(res.message || "Login failed");
       }
@@ -54,6 +57,9 @@ export default function Login() {
             <label>Email</label>
             <input
               className="input"
+              type="email"
+              autoComplete="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
@@ -66,6 +72,8 @@ export default function Login() {
             <input
               className="input"
               type="password"
+              autoComplete="current-password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"

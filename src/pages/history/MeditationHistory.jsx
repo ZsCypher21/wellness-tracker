@@ -11,46 +11,40 @@ import Loading from "../../components/ui/Loading";
 import ErrorMessage from "../../components/ui/ErrorMessage";
 
 import { putJson, deleteJson } from "../../services/api";
+import { formatDate } from "../../utils/date";
 
 export default function MeditationHistory() {
   const { isAuthenticated, token } = useAuth();
-  const {
-    meditations,
-    loading,
-    error,
-    loadHistory
-  } = useMeditation();
+  const { meditations, loading, error, loadHistory } = useMeditation();
 
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (token) loadHistory(token);
-  }, [token]);
+  }, [token, loadHistory]);
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  //  Handle save
+  // Throws on failure so the edit modal can show the error
   async function handleSave(updated) {
-    try {
-      await putJson(`/meditation/${updated.id}`, updated, token);
-      await loadHistory(token);
-      setEditOpen(false);
-      setEditing(null);
-    } catch (err) {
-      console.error("Failed to update meditation entry:", err);
-    }
+    await putJson(`/meditation/${updated.id}`, updated, token);
+    await loadHistory(token);
+    setEditOpen(false);
+    setEditing(null);
   }
 
-  //  Handle delete
   async function handleDelete(item) {
+    if (!window.confirm("Delete this entry?")) return;
     try {
+      setActionError(null);
       await deleteJson(`/meditation/${item.id}`, token);
       await loadHistory(token);
     } catch (err) {
-      console.error("Failed to delete meditation entry:", err);
+      setActionError(err.message || "Failed to delete entry.");
     }
   }
 
@@ -59,23 +53,19 @@ export default function MeditationHistory() {
       <div className="page__content">
         <h2>Meditation History</h2>
 
-        {/*  Loading */}
         {loading && <Loading />}
-
-        {/* Error */}
         {error && <ErrorMessage message={error} />}
+        {actionError && <ErrorMessage message={actionError} />}
 
-        {/*  Empty State */}
         {!loading && !error && meditations.length === 0 && (
           <p className="empty-state">No meditation entries yet.</p>
         )}
 
-        {/*  List */}
         <ul className="activity-list">
-          {meditations.map((m) => (
+          {meditations.map((entry) => (
             <HistoryItem
-              key={m.id}
-              item={m}
+              key={entry.id}
+              item={entry}
               onEdit={(item) => {
                 setEditing(item);
                 setEditOpen(true);
@@ -83,23 +73,21 @@ export default function MeditationHistory() {
               onDelete={handleDelete}
               renderContent={(item) => (
                 <>
-                  <strong>{item.meditation_type}</strong> — {item.duration_minutes} mins
+                  <strong>Meditation</strong> — {item.duration_minutes} mins
                   <br />
-                  <small>{item.meditation_date}</small>
+                  <small>{formatDate(item.meditation_date)}</small>
                 </>
               )}
             />
           ))}
         </ul>
 
-        {/*  Back button */}
         <div className="btn-center" style={{ marginTop: "2rem" }}>
           <button className="btn" onClick={() => navigate("/meditation")}>
             ← Back
           </button>
         </div>
 
-        {/*  Edit Modal */}
         <EditMeditationModal
           open={editOpen}
           meditation={editing}

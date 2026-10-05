@@ -11,46 +11,40 @@ import Loading from "../../components/ui/Loading";
 import ErrorMessage from "../../components/ui/ErrorMessage";
 
 import { putJson, deleteJson } from "../../services/api";
+import { formatDate } from "../../utils/date";
 
 export default function ActivitiesHistory() {
   const { isAuthenticated, token } = useAuth();
-  const {
-    activities,
-    loading,
-    error,
-    loadHistory
-  } = useActivities();
+  const { activities, loading, error, loadHistory } = useActivities();
 
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [actionError, setActionError] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (token) loadHistory(token);
-  }, [token]);
+  }, [token, loadHistory]);
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  // ⭐ Handle save
+  // Throws on failure so the edit modal can show the error
   async function handleSave(updated) {
-    try {
-      await putJson(`/activities/${updated.id}`, updated, token);
-      await loadHistory(token);
-      setEditOpen(false);
-      setEditing(null);
-    } catch (err) {
-      console.error("Failed to update activity:", err);
-    }
+    await putJson(`/activities/${updated.id}`, updated, token);
+    await loadHistory(token);
+    setEditOpen(false);
+    setEditing(null);
   }
 
-  // ⭐ Handle delete
   async function handleDelete(item) {
+    if (!window.confirm("Delete this entry?")) return;
     try {
+      setActionError(null);
       await deleteJson(`/activities/${item.id}`, token);
       await loadHistory(token);
     } catch (err) {
-      console.error("Failed to delete activity:", err);
+      setActionError(err.message || "Failed to delete entry.");
     }
   }
 
@@ -59,23 +53,19 @@ export default function ActivitiesHistory() {
       <div className="page__content">
         <h2>Activity History</h2>
 
-        {/* ⭐ Loading */}
         {loading && <Loading />}
-
-        {/* ⭐ Error */}
         {error && <ErrorMessage message={error} />}
+        {actionError && <ErrorMessage message={actionError} />}
 
-        {/* ⭐ Empty State */}
         {!loading && !error && activities.length === 0 && (
           <p className="empty-state">No activity entries yet.</p>
         )}
 
-        {/* ⭐ List */}
         <ul className="activity-list">
-          {activities.map((a) => (
+          {activities.map((entry) => (
             <HistoryItem
-              key={a.id}
-              item={a}
+              key={entry.id}
+              item={entry}
               onEdit={(item) => {
                 setEditing(item);
                 setEditOpen(true);
@@ -85,21 +75,19 @@ export default function ActivitiesHistory() {
                 <>
                   <strong>{item.activity_type}</strong> — {item.duration_minutes} mins
                   <br />
-                  <small>{item.activity_date}</small>
+                  <small>{formatDate(item.activity_date)}</small>
                 </>
               )}
             />
           ))}
         </ul>
 
-        {/* ⭐ Back button */}
         <div className="btn-center" style={{ marginTop: "2rem" }}>
           <button className="btn" onClick={() => navigate("/activities")}>
             ← Back
           </button>
         </div>
 
-        {/* ⭐ Edit Modal */}
         <EditActivityModal
           open={editOpen}
           activity={editing}

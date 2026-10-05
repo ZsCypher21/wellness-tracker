@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { sendDbError } = require('../utils/errors');
 const auth = require('../middleware/authMiddleware');
 
 // ADD HYDRATION LOG
@@ -27,7 +28,7 @@ router.post('/add', auth, async (req, res) => {
 
   } catch (err) {
     console.error("ADD HYDRATION ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -37,6 +38,10 @@ router.put('/:id', auth, async (req, res) => {
     const userId = req.user.user_id;
     const { id } = req.params;
     const { liters, hydration_date } = req.body;
+
+    if (!hydration_date || !liters) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
     const updated = await pool.query(
       `UPDATE hydration_logs
@@ -54,7 +59,7 @@ router.put('/:id', auth, async (req, res) => {
     res.json(updated.rows[0]);
   } catch (err) {
     console.error("UPDATE HYDRATION ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -76,7 +81,7 @@ router.delete('/:id', auth, async (req, res) => {
     res.json({ message: "Hydration entry deleted" });
   } catch (err) {
     console.error("DELETE HYDRATION ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -98,7 +103,7 @@ router.get('/recent', auth, async (req, res) => {
 
   } catch (err) {
     console.error("RECENT HYDRATION ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 
@@ -119,7 +124,7 @@ router.get('/history', auth, async (req, res) => {
 
   } catch (err) {
     console.error("HYDRATION HISTORY ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    sendDbError(res, err);
   }
 });
 

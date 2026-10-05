@@ -1,4 +1,3 @@
-// src/components/features/HydrationForm.jsx
 /**
  * HydrationForm.jsx
  * ---------------------------------------------------------
@@ -16,13 +15,14 @@ import { useHydration } from "../../context/HydrationContext";
 
 import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import { toInputDate } from "../../utils/date";
 
 export default function HydrationForm({ onSubmit }) {
   const { addHydration, loading, error } = useHydration();
 
   const [form, setForm] = useState({
     liters: "",
-    date: "",
+    date: toInputDate(),
   });
 
   function handleChange(e) {
@@ -31,8 +31,9 @@ export default function HydrationForm({ onSubmit }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await addHydration(form);
-    onSubmit();
+    const res = await addHydration(form);
+    // only close the modal if the save worked; otherwise the error stays visible
+    if (res) onSubmit();
   }
 
   return (
@@ -46,10 +47,14 @@ export default function HydrationForm({ onSubmit }) {
       <div className="form-row">
         <label>Liters</label>
         <input
+          type="number"
+          min="0.1"
+          step="0.1"
           name="liters"
           value={form.liters}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 
@@ -61,6 +66,7 @@ export default function HydrationForm({ onSubmit }) {
           value={form.date}
           onChange={handleChange}
           disabled={loading}
+          required
         />
       </div>
 

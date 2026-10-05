@@ -17,7 +17,7 @@ export default function RegisterForm({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { setToken, setUser } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   async function submit(e) {
@@ -41,8 +41,7 @@ export default function RegisterForm({ onSuccess }) {
       });
 
       if (res.token) {
-        setToken(res.token);
-        setUser(res.user);
+        login(res.token, res.user);
         onSuccess();
         navigate("/dashboard");
       } else {
@@ -86,6 +85,8 @@ export default function RegisterForm({ onSuccess }) {
       <div className="form-row">
         <label>Email</label>
         <input
+          type="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
@@ -96,6 +97,8 @@ export default function RegisterForm({ onSuccess }) {
         <label>Password</label>
         <input
           type="password"
+          autoComplete="new-password"
+          minLength={6}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
@@ -106,6 +109,7 @@ export default function RegisterForm({ onSuccess }) {
         <label>Confirm Password</label>
         <input
           type="password"
+          autoComplete="new-password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           disabled={loading}
