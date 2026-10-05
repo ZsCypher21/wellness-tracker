@@ -52,6 +52,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     res.json(updated.rows[0]);
+
   } catch (err) {
     console.error("UPDATE MEDITATION ERROR:", err);
     res.status(500).json({ message: "Server error" });
@@ -74,6 +75,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     res.json({ message: "Meditation entry deleted" });
+
   } catch (err) {
     console.error("DELETE MEDITATION ERROR:", err);
     res.status(500).json({ message: "Server error" });
@@ -94,4 +96,33 @@ router.get('/recent', auth, async (req, res) => {
       [userId]
     );
 
-    res
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error("RECENT MEDITATION ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET FULL MEDITATION HISTORY
+router.get('/history', auth, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM meditation_logs
+       WHERE user_id = $1
+       ORDER BY meditation_date DESC, id DESC`,
+      [userId]
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    console.error("MEDITATION HISTORY ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+module.exports = router;
