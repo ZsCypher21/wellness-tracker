@@ -30,9 +30,11 @@ export default function Register() {
     try {
       setLoading(true);
 
+      // FIXED: backend expects full_name
+      const full_name = `${first_name} ${last_name}`.trim();
+
       const res = await postJson("/auth/register", {
-        first_name,
-        last_name,
+        full_name,
         email,
         password
       });
