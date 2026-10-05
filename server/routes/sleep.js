@@ -1,4 +1,3 @@
-// server/routes/sleep.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
@@ -53,12 +52,12 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     res.json(updated.rows[0]);
+
   } catch (err) {
     console.error("UPDATE SLEEP ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // DELETE SLEEP ENTRY
 router.delete('/:id', auth, async (req, res) => {
@@ -76,12 +75,12 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     res.json({ message: "Sleep entry deleted" });
+
   } catch (err) {
     console.error("DELETE SLEEP ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // GET RECENT SLEEP LOGS (last 5)
 router.get('/recent', auth, async (req, res) => {

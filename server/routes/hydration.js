@@ -1,4 +1,3 @@
-// server/routes/hydration.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
@@ -59,7 +58,6 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-
 // DELETE HYDRATION ENTRY
 router.delete('/:id', auth, async (req, res) => {
   try {
@@ -81,8 +79,6 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 // GET RECENT HYDRATION LOGS (last 5)
 router.get('/recent', auth, async (req, res) => {

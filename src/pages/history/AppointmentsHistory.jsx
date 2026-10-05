@@ -3,12 +3,23 @@ import { useEffect, useState } from "react";
 import { useAppointments } from "../../context/AppointmentContext";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
+
 import HistoryItem from "../../components/common/HistoryItem";
 import EditAppointmentModal from "../../components/features/EditAppointmentModal";
 
+import Loading from "../../components/ui/Loading";
+import ErrorMessage from "../../components/ui/ErrorMessage";
+
 export default function AppointmentsHistory() {
   const { isAuthenticated, token } = useAuth();
-  const { past, loading, loadPast, updateAppointment, deleteAppointment } = useAppointments();
+  const {
+    past,
+    loading,
+    error,
+    loadPast,
+    updateAppointment,
+    deleteAppointment
+  } = useAppointments();
 
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -26,8 +37,18 @@ export default function AppointmentsHistory() {
       <div className="page__content">
         <h2>Past Appointments</h2>
 
-        {loading && <p>Loading...</p>}
+        {/* ⭐ Loading */}
+        {loading && <Loading />}
 
+        {/* ⭐ Error */}
+        {error && <ErrorMessage message={error} />}
+
+        {/* ⭐ Empty State */}
+        {!loading && !error && past.length === 0 && (
+          <p className="empty-state">No past appointments yet.</p>
+        )}
+
+        {/* ⭐ List */}
         <ul className="appointment-list">
           {past.map((a) => (
             <HistoryItem
@@ -51,12 +72,14 @@ export default function AppointmentsHistory() {
           ))}
         </ul>
 
+        {/* ⭐ Back button */}
         <div className="btn-center" style={{ marginTop: "2rem" }}>
           <button className="btn" onClick={() => navigate("/appointments")}>
             ← Back
           </button>
         </div>
 
+        {/* ⭐ Edit Modal */}
         <EditAppointmentModal
           open={editOpen}
           appointment={editing}

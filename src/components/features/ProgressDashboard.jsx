@@ -13,6 +13,8 @@ import { useHydration } from "../../context/HydrationContext";
 import { useMeditation } from "../../context/MeditationContext";
 import { useAppointments } from "../../context/AppointmentContext";
 
+import { formatLiters } from "../../utils/format";
+
 export default function ProgressDashboard() {
   // ----- Contexts with safe fallbacks -----
   const { activities = [] } = useActivities() || {};
@@ -23,7 +25,7 @@ export default function ProgressDashboard() {
 
   // ----- Activities -----
   const totalActivityMinutes = activities.reduce(
-    (sum, a) => sum + (a.duration_minutes || 0),
+    (sum, a) => sum + Number(a.duration_minutes || 0),
     0
   );
 
@@ -31,20 +33,22 @@ export default function ProgressDashboard() {
   const avgSleep =
     sleepEntries.length > 0
       ? (
-          sleepEntries.reduce((sum, s) => sum + (s.hours_slept || 0), 0) /
-          sleepEntries.length
+          sleepEntries.reduce(
+            (sum, s) => sum + Number(s.hours_slept || 0),
+            0
+          ) / sleepEntries.length
         ).toFixed(1)
       : 0;
 
-  // ----- Hydration -----
+  // ----- Hydration (FIXED) -----
   const totalHydration = hydrationData.reduce(
-    (sum, h) => sum + (h.liters || 0),
+    (sum, h) => sum + Number(h.liters || 0),
     0
   );
 
   // ----- Meditation -----
   const totalMeditationMinutes = meditations.reduce(
-    (sum, m) => sum + (m.duration_minutes || 0),
+    (sum, m) => sum + Number(m.duration_minutes || 0),
     0
   );
 
@@ -65,10 +69,10 @@ export default function ProgressDashboard() {
         <p>Avg {avgSleep} hrs/night</p>
       </div>
 
-      {/* Hydration Summary */}
+      {/* Hydration Summary (FIXED) */}
       <div className="dashboard-card">
         <h3>Hydration</h3>
-        <p>{totalHydration} L consumed</p>
+        <p>{formatLiters(totalHydration)} L consumed</p>
       </div>
 
       {/* Meditation Summary */}

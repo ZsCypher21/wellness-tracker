@@ -6,45 +6,63 @@ import { useAuth } from "./AuthContext";
 const ProfileContext = createContext();
 
 export function ProfileProvider({ children }) {
-  const { token, user } = useAuth(); // user contains id + email from login
+  const { token, user } = useAuth();
+
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // ----------------------------
-  // LOAD PROFILE (GET /api/profile)
-  // ----------------------------
+  // ---------------------------------------------------------
+  // LOAD PROFILE
+  // ---------------------------------------------------------
   async function loadProfile() {
     if (!token) return;
 
-    setLoading(true);
-    const data = await getJson("/profile", token);
+    try {
+      setLoading(true);
+      setError(null);
 
-    setProfile({
-      name: data.name || "",
-      email: data.email || "",
-      bio: data.bio || "",
-      sleep_goal: data.sleep_goal || 0,
-      hydration_goal: data.hydration_goal || 0,
-      meditation_goal: data.meditation_goal || 0,
-      activity_goal: data.activity_goal || 0,
-    });
+      const data = await getJson("/profile", token);
 
-    setLoading(false);
+      setProfile({
+        name: data.name || "",
+        email: data.email || "",
+        bio: data.bio || "",
+        sleep_goal: data.sleep_goal || 0,
+        hydration_goal: data.hydration_goal || 0,
+        meditation_goal: data.meditation_goal || 0,
+        activity_goal: data.activity_goal || 0,
+      });
+    } catch (err) {
+      setError(err.message || "Failed to load profile.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // ----------------------------
-  // UPDATE PROFILE (POST /api/profile/update)
-  // ----------------------------
+  // ---------------------------------------------------------
+  // UPDATE PROFILE
+  // ---------------------------------------------------------
   async function updateProfile(updatedFields) {
     if (!token) return;
 
-    await postJson("/profile/update", updatedFields, token);
+    try {
+      setLoading(true);
+      setError(null);
 
-    // Refresh profile after update
-    await loadProfile();
+      await postJson("/profile/update", updatedFields, token);
+
+      await loadProfile();
+    } catch (err) {
+      setError(err.message || "Failed to update profile.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // Load profile on login
+  // ---------------------------------------------------------
+  // AUTO LOAD PROFILE ON LOGIN
+  // ---------------------------------------------------------
   useEffect(() => {
     if (token) loadProfile();
   }, [token]);
@@ -54,6 +72,7 @@ export function ProfileProvider({ children }) {
       value={{
         profile,
         loading,
+        error,
         loadProfile,
         updateProfile,
       }}

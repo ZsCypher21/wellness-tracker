@@ -6,18 +6,61 @@ import { useHydration } from "../context/HydrationContext";
 import { useMeditation } from "../context/MeditationContext";
 import { useActivities } from "../context/ActivityContext";
 
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
+
 import ProgressBar from "../components/ui/ProgressBar";
 import WeeklyWellnessChart from "../components/features/WeeklyWellnessChart";
 
 export default function Dashboard() {
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
 
-  const { sleepEntries, weeklySleepHours } = useSleep();
-  const { hydrationData, weeklyHydrationLiters } = useHydration();
-  const { meditations, weeklyMeditationMinutes } = useMeditation();
-  const { activities, weeklyActivityMinutes } = useActivities();
+  const {
+    sleepEntries,
+    weeklySleepHours,
+    loading: sleepLoading,
+    error: sleepError
+  } = useSleep();
 
-  // ⭐ Build combined weekly chart data
+  const {
+    hydrationData,
+    weeklyHydrationLiters,
+    loading: hydrationLoading,
+    error: hydrationError
+  } = useHydration();
+
+  const {
+    meditations,
+    weeklyMeditationMinutes,
+    loading: meditationLoading,
+    error: meditationError
+  } = useMeditation();
+
+  const {
+    activities,
+    weeklyActivityMinutes,
+    loading: activityLoading,
+    error: activityError
+  } = useActivities();
+
+  const globalLoading =
+    profileLoading ||
+    sleepLoading ||
+    hydrationLoading ||
+    meditationLoading ||
+    activityLoading;
+
+  if (globalLoading) return <Loading />;
+
+  const anyError =
+    profileError ||
+    sleepError ||
+    hydrationError ||
+    meditationError ||
+    activityError;
+
+  if (anyError) return <ErrorMessage message={anyError} />;
+
   function buildWeeklyWellnessData() {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
@@ -64,46 +107,43 @@ export default function Dashboard() {
     <div className="dashboard-page">
       <h2 className="dashboard-title">Dashboard</h2>
 
-     <div className="dashboard-grid">
+      <div className="dashboard-grid">
+        <ProgressDashboard />
 
-  <ProgressDashboard />
+        <div className="dashboard-row">
+          <WeeklyWellnessChart data={weeklyWellnessData} />
 
-  <div className="dashboard-row">
-    <WeeklyWellnessChart data={weeklyWellnessData} />
+          {profile && (
+            <div className="progress-card">
+              <h3>Weekly Goals Progress</h3>
 
-    {profile && (
-      <div className="progress-card">
-        <h3>Weekly Goals Progress</h3>
+              <ProgressBar
+                label="Sleep"
+                value={weeklySleepHours}
+                target={profile.sleep_goal}
+              />
 
-        <ProgressBar
-          label="Sleep"
-          value={weeklySleepHours}
-          target={profile.sleep_goal}
-        />
+              <ProgressBar
+                label="Hydration"
+                value={weeklyHydrationLiters}
+                target={profile.hydration_goal}
+              />
 
-        <ProgressBar
-          label="Hydration"
-          value={weeklyHydrationLiters}
-          target={profile.hydration_goal}
-        />
+              <ProgressBar
+                label="Meditation"
+                value={weeklyMeditationMinutes}
+                target={profile.meditation_goal}
+              />
 
-        <ProgressBar
-          label="Meditation"
-          value={weeklyMeditationMinutes}
-          target={profile.meditation_goal}
-        />
-
-        <ProgressBar
-          label="Activity"
-          value={weeklyActivityMinutes}
-          target={profile.activity_goal}
-        />
+              <ProgressBar
+                label="Activity"
+                value={weeklyActivityMinutes}
+                target={profile.activity_goal}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-
-</div>
-
     </div>
   );
 }

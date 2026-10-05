@@ -5,12 +5,14 @@ import Modal from "../components/ui/Modal";
 import ActivityForm from "../components/features/ActivityForm";
 import EditActivityModal from "../components/features/EditActivityModal";
 import HistoryItem from "../components/common/HistoryItem";
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 import { Navigate } from "react-router-dom";
 import { putJson, deleteJson } from "../services/api";
 
 export default function Activities() {
   const { token } = useAuth();
-  const { activities, loading, loadRecent } = useActivities();
+  const { activities, loading, error, loadRecent } = useActivities();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -25,7 +27,7 @@ export default function Activities() {
   const recent = [...activities].slice(0, 5);
 
   async function handleSave(updated) {
-    const res = await putJson(`/activities/${updated.id}`, updated, token);
+    await putJson(`/activities/${updated.id}`, updated, token);
     loadRecent();
     setEditOpen(false);
     setEditing(null);
@@ -41,7 +43,12 @@ export default function Activities() {
       <div className="page__content">
         <h2>Activities</h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && recent.length === 0 && (
+          <p className="empty-state">No activities recorded yet.</p>
+        )}
 
         <ul className="activity-list">
           {recent.map((a) => (

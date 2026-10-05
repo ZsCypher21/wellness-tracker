@@ -1,53 +1,69 @@
-import { useState, useEffect } from "react";
-import Modal from "../ui/Modal";
+import { useState } from "react";
+import { useSleep } from "../../context/SleepContext";
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
 export default function EditSleepModal({ open, sleep, onSave, onClose }) {
-  const [hours_slept, setHours] = useState("");
-  const [sleep_date, setDate] = useState("");
+  const { updateSleep, loading, error } = useSleep();
 
-  useEffect(() => {
-    if (sleep) {
-      setHours(sleep.hours_slept || "");
-      setDate(sleep.sleep_date || "");
-    }
-  }, [sleep]);
+  const [form, setForm] = useState({
+    hours_slept: sleep?.hours_slept || "",
+    sleep_date: sleep?.sleep_date || "",
+  });
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSave({
-      ...sleep,
-      hours_slept,
-      sleep_date,
-    });
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await updateSleep(sleep.id, form);
+    onSave();
+  }
+
+  if (!open) return null;
+
   return (
-    <Modal isOpen={open} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="feature-form">
-        <h3>Edit Sleep Entry</h3>
+    <div className="modal">
+      <div className="modal__content">
+        <h3>Edit Sleep</h3>
 
-        <div className="form-row">
-          <label>Hours Slept</label>
-          <input
-            type="number"
-            value={hours_slept}
-            onChange={(e) => setHours(e.target.value)}
-          />
-        </div>
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
-        <div className="form-row">
-          <label>Date</label>
-          <input
-            type="date"
-            value={sleep_date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Hours Slept</label>
+            <input
+              type="number"
+              name="hours_slept"
+              value={form.hours_slept}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <button className="btn-primary" type="submit">
-          Save Changes
-        </button>
-      </form>
-    </Modal>
+          <div className="form-row">
+            <label>Date</label>
+            <input
+              type="date"
+              name="sleep_date"
+              value={form.sleep_date}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="modal__actions">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </button>
+            <button className="btn" type="button" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-// src/pages/Appointments.jsx
 import { useState, useEffect } from "react";
 import { useAppointments } from "../context/AppointmentContext";
 import { useAuth } from "../context/AuthContext";
@@ -6,11 +5,14 @@ import Modal from "../components/ui/Modal";
 import AppointmentForm from "../components/features/AppointmentForm";
 import EditAppointmentModal from "../components/features/EditAppointmentModal";
 import HistoryItem from "../components/common/HistoryItem";
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 import { Navigate } from "react-router-dom";
 
 export default function Appointments() {
   const { token } = useAuth();
-  const { upcoming, loading, loadUpcoming, updateAppointment, deleteAppointment } = useAppointments();
+  const { upcoming, loading, error, loadUpcoming, updateAppointment, deleteAppointment } =
+    useAppointments();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -27,7 +29,12 @@ export default function Appointments() {
       <div className="page__content">
         <h2>Upcoming Appointments</h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && upcoming.length === 0 && (
+          <p className="empty-state">No upcoming appointments.</p>
+        )}
 
         <ul className="appointment-list">
           {upcoming.map((a) => (
@@ -57,10 +64,7 @@ export default function Appointments() {
             Add Appointment
           </button>
 
-          <button
-            className="btn"
-            onClick={() => (window.location.href = "/appointments/history")}
-          >
+          <button className="btn" onClick={() => (window.location.href = "/appointments/history")}>
             Past Appointments
           </button>
         </div>

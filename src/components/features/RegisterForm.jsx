@@ -1,7 +1,11 @@
+// src/components/features/RegisterForm.jsx
 import { useState } from "react";
 import { postJson } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
 export default function RegisterForm({ onSuccess }) {
   const [first_name, setFirstName] = useState("");
@@ -9,6 +13,8 @@ export default function RegisterForm({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const { setToken, setUser } = useAuth();
@@ -25,19 +31,27 @@ export default function RegisterForm({ onSuccess }) {
 
     const full_name = `${first_name} ${last_name}`.trim();
 
-    const res = await postJson("/auth/register", {
-      full_name,
-      email,
-      password
-    });
+    try {
+      setLoading(true);
 
-    if (res.token) {
-      setToken(res.token);
-      setUser(res.user);
-      onSuccess();
-      navigate("/dashboard");
-    } else {
-      setError(res.message || "Registration failed");
+      const res = await postJson("/auth/register", {
+        full_name,
+        email,
+        password
+      });
+
+      if (res.token) {
+        setToken(res.token);
+        setUser(res.user);
+        onSuccess();
+        navigate("/dashboard");
+      } else {
+        setError(res.message || "Registration failed");
+      }
+    } catch (err) {
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -45,11 +59,18 @@ export default function RegisterForm({ onSuccess }) {
     <form onSubmit={submit} className="feature-form">
       <h3>Create Account</h3>
 
+      {/*  Error */}
+      {error && <ErrorMessage message={error} />}
+
+      {/* Loading */}
+      {loading && <Loading />}
+
       <div className="form-row">
         <label>First Name</label>
         <input
           value={first_name}
           onChange={(e) => setFirstName(e.target.value)}
+          disabled={loading}
         />
       </div>
 
@@ -58,6 +79,7 @@ export default function RegisterForm({ onSuccess }) {
         <input
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
+          disabled={loading}
         />
       </div>
 
@@ -66,6 +88,7 @@ export default function RegisterForm({ onSuccess }) {
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
         />
       </div>
 
@@ -75,6 +98,7 @@ export default function RegisterForm({ onSuccess }) {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
         />
       </div>
 
@@ -84,14 +108,15 @@ export default function RegisterForm({ onSuccess }) {
           type="password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
+          disabled={loading}
         />
       </div>
 
-      {error && <p className="error-text">{error}</p>}
-
-      <button className="btn-primary" type="submit">
-        Register
-      </button>
+      <div className="btn-center">
+        <button className="btn-primary" type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
+      </div>
     </form>
   );
 }

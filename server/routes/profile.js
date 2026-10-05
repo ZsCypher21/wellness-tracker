@@ -1,4 +1,3 @@
-// server/routes/profile.js
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
@@ -38,13 +37,14 @@ router.get("/", auth, async (req, res) => {
     res.json({
       id: user.id,
       email: user.email,
-      name: user.full_name, // FIXED
+      name: user.full_name,
       bio: settings.bio,
       sleep_goal: settings.sleep_goal,
       hydration_goal: settings.hydration_goal,
       meditation_goal: settings.meditation_goal,
       activity_goal: settings.activity_goal,
     });
+
   } catch (err) {
     console.error("GET PROFILE ERROR:", err);
     res.status(500).json({ message: "Server error" });
@@ -64,13 +64,15 @@ router.post("/update", auth, async (req, res) => {
       activity_goal,
     } = req.body;
 
+    // Update name if provided
     if (name !== undefined) {
       await pool.query(
-        "UPDATE users SET full_name = $1 WHERE id = $2", // FIXED
+        "UPDATE users SET full_name = $1 WHERE id = $2",
         [name, userId]
       );
     }
 
+    // Upsert user settings
     await pool.query(
       `INSERT INTO user_settings (
          user_id, bio, sleep_goal, hydration_goal, meditation_goal, activity_goal, updated_at
@@ -95,6 +97,7 @@ router.post("/update", auth, async (req, res) => {
     );
 
     res.json({ message: "Profile updated successfully" });
+
   } catch (err) {
     console.error("UPDATE PROFILE ERROR:", err);
     res.status(500).json({ message: "Server error" });

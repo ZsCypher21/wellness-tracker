@@ -1,55 +1,56 @@
+// src/components/features/HydrationForm.jsx
 /**
+ * HydrationForm.jsx
+ * ---------------------------------------------------------
  * Form for adding a new hydration entry.
- *
- * Notes:
- * - Follows the same structure as ActivityForm, SleepForm,
- *   MeditationForm, and AppointmentForm.
- * - Only the fields differ (liters, date).
  *
  * Responsibilities:
  * - Manage local form state.
  * - Submit a new hydration entry to HydrationContext.
- * - Notify the parent component via onSubmit() so it can close
- *   modals or refresh lists.
+ * - Show loading + error states.
+ * - Disable submit button while saving.
  */
 
 import { useState } from "react";
 import { useHydration } from "../../context/HydrationContext";
 
-export default function HydrationForm({ onSubmit }) {
-  const { addHydration } = useHydration();
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
-  // Local form state for hydration fields
+export default function HydrationForm({ onSubmit }) {
+  const { addHydration, loading, error } = useHydration();
+
   const [form, setForm] = useState({
     liters: "",
     date: "",
   });
 
-  /**
-   * Update form state when any input changes.
-   * Same pattern used across all feature forms.
-   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  /**
-   * Submit the new hydration entry.
-   * - Prevent default form submission.
-   * - Add the hydration record to global context.
-   * - Trigger parent callback (usually closes modal).
-   */
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    addHydration(form);
+    await addHydration(form);
     onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
+      {/* Error */}
+      {error && <ErrorMessage message={error} />}
+
+      {/* Loading */}
+      {loading && <Loading />}
+
       <div className="form-row">
         <label>Liters</label>
-        <input name="liters" value={form.liters} onChange={handleChange} />
+        <input
+          name="liters"
+          value={form.liters}
+          onChange={handleChange}
+          disabled={loading}
+        />
       </div>
 
       <div className="form-row">
@@ -59,11 +60,14 @@ export default function HydrationForm({ onSubmit }) {
           name="date"
           value={form.date}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit">Add</button>
+        <button className="btn-primary" type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Add"}
+        </button>
       </div>
     </form>
   );

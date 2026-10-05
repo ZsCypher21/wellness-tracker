@@ -1,64 +1,79 @@
-import { useState, useEffect } from "react";
-import Modal from "../ui/Modal";
+import { useState } from "react";
+import { useActivities } from "../../context/ActivityContext";
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
 export default function EditActivityModal({ open, activity, onSave, onClose }) {
-  const [activity_type, setActivityType] = useState("");
-  const [duration_minutes, setDuration] = useState("");
-  const [activity_date, setActivityDate] = useState("");
+  const { updateActivity, loading, error } = useActivities();
 
-  useEffect(() => {
-    if (activity) {
-      setActivityType(activity.activity_type || "");
-      setDuration(activity.duration_minutes || "");
-      setActivityDate(activity.activity_date || "");
-    }
-  }, [activity]);
+  const [form, setForm] = useState({
+    activity_type: activity?.activity_type || "",
+    duration_minutes: activity?.duration_minutes || "",
+    activity_date: activity?.activity_date || "",
+  });
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSave({
-      ...activity,
-      activity_type,
-      duration_minutes,
-      activity_date,
-    });
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await updateActivity(activity.id, form);
+    onSave();
+  }
+
+  if (!open) return null;
+
   return (
-    <Modal isOpen={open} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="feature-form">
+    <div className="modal">
+      <div className="modal__content">
         <h3>Edit Activity</h3>
 
-        <div className="form-row">
-          <label>Activity Type</label>
-          <input
-            value={activity_type}
-            onChange={(e) => setActivityType(e.target.value)}
-          />
-        </div>
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
-        <div className="form-row">
-          <label>Duration (minutes)</label>
-          <input
-            type="number"
-            value={duration_minutes}
-            onChange={(e) => setDuration(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Type</label>
+            <input
+              name="activity_type"
+              value={form.activity_type}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <div className="form-row">
-          <label>Date</label>
-          <input
-            type="date"
-            value={activity_date}
-            onChange={(e) => setActivityDate(e.target.value)}
-          />
-        </div>
+          <div className="form-row">
+            <label>Duration (mins)</label>
+            <input
+              name="duration_minutes"
+              value={form.duration_minutes}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <button className="btn-primary" type="submit">
-          Save Changes
-        </button>
-      </form>
-    </Modal>
+          <div className="form-row">
+            <label>Date</label>
+            <input
+              type="date"
+              name="activity_date"
+              value={form.activity_date}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="modal__actions">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </button>
+            <button className="btn" type="button" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

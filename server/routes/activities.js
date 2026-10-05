@@ -1,4 +1,3 @@
-// server/routes/activities.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
@@ -81,7 +80,6 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // GET RECENT ACTIVITIES (last 5)
 router.get('/recent', auth, async (req, res) => {

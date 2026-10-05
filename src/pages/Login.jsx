@@ -4,12 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/ui/Modal";
 import RegisterForm from "../components/features/RegisterForm";
-
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [showRegister, setShowRegister] = useState(false);
 
@@ -20,13 +23,21 @@ export default function Login() {
     e.preventDefault();
     setError(null);
 
-    const res = await postJson("/auth/login", { email, password });
+    try {
+      setLoading(true);
 
-    if (res.token) {
-      login(res.token, res.user);
-      navigate("/dashboard");
-    } else {
-      setError(res.message || "Login failed");
+      const res = await postJson("/auth/login", { email, password });
+
+      if (res.token) {
+        login(res.token, res.user);
+        navigate("/dashboard");
+      } else {
+        setError(res.message || "Login failed");
+      }
+    } catch (err) {
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -34,6 +45,9 @@ export default function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Welcome Back</h2>
+
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
         <form onSubmit={submit} className="auth-form">
           <div className="form-group">
@@ -43,6 +57,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              disabled={loading}
             />
           </div>
 
@@ -54,26 +69,25 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              disabled={loading}
             />
           </div>
 
-          {error && <p className="error-text">{error}</p>}
-
-          <button className="btn-primary auth-btn" type="submit">
-            Login
+          <button className="btn-primary auth-btn" type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           <button
             className="btn auth-btn"
             type="button"
             onClick={() => setShowRegister(true)}
+            disabled={loading}
           >
             Register
           </button>
         </form>
       </div>
 
-      {/* Register Modal */}
       <Modal isOpen={showRegister} onClose={() => setShowRegister(false)}>
         <RegisterForm onSuccess={() => setShowRegister(false)} />
       </Modal>

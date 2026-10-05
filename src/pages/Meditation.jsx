@@ -5,12 +5,14 @@ import Modal from "../components/ui/Modal";
 import MeditationForm from "../components/features/MeditationForm";
 import EditMeditationModal from "../components/features/EditMeditationModal";
 import HistoryItem from "../components/common/HistoryItem";
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 import { Navigate } from "react-router-dom";
 import { putJson, deleteJson } from "../services/api";
 
 export default function Meditation() {
   const { token } = useAuth();
-  const { meditations, loading, loadRecent } = useMeditation();
+  const { meditations, loading, error, loadRecent } = useMeditation();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -41,7 +43,12 @@ export default function Meditation() {
       <div className="page__content">
         <h2>Meditation</h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && recent.length === 0 && (
+          <p className="empty-state">No meditation sessions yet.</p>
+        )}
 
         <ul className="activity-list">
           {recent.map((m) => (

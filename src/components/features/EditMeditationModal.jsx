@@ -1,64 +1,79 @@
-import { useState, useEffect } from "react";
-import Modal from "../ui/Modal";
+import { useState } from "react";
+import { useMeditation } from "../../context/MeditationContext";
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
 export default function EditMeditationModal({ open, meditation, onSave, onClose }) {
-  const [meditation_type, setType] = useState("");
-  const [duration_minutes, setDuration] = useState("");
-  const [meditation_date, setDate] = useState("");
+  const { updateMeditation, loading, error } = useMeditation();
 
-  useEffect(() => {
-    if (meditation) {
-      setType(meditation.meditation_type || "");
-      setDuration(meditation.duration_minutes || "");
-      setDate(meditation.meditation_date || "");
-    }
-  }, [meditation]);
+  const [form, setForm] = useState({
+    meditation_type: meditation?.meditation_type || "",
+    duration_minutes: meditation?.duration_minutes || "",
+    meditation_date: meditation?.meditation_date || "",
+  });
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSave({
-      ...meditation,
-      meditation_type,
-      duration_minutes,
-      meditation_date,
-    });
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await updateMeditation(meditation.id, form);
+    onSave();
+  }
+
+  if (!open) return null;
+
   return (
-    <Modal isOpen={open} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="feature-form">
-        <h3>Edit Meditation Entry</h3>
+    <div className="modal">
+      <div className="modal__content">
+        <h3>Edit Meditation</h3>
 
-        <div className="form-row">
-          <label>Meditation Type</label>
-          <input
-            value={meditation_type}
-            onChange={(e) => setType(e.target.value)}
-          />
-        </div>
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
-        <div className="form-row">
-          <label>Duration (minutes)</label>
-          <input
-            type="number"
-            value={duration_minutes}
-            onChange={(e) => setDuration(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Type</label>
+            <input
+              name="meditation_type"
+              value={form.meditation_type}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <div className="form-row">
-          <label>Date</label>
-          <input
-            type="date"
-            value={meditation_date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+          <div className="form-row">
+            <label>Duration (mins)</label>
+            <input
+              name="duration_minutes"
+              value={form.duration_minutes}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <button className="btn-primary" type="submit">
-          Save Changes
-        </button>
-      </form>
-    </Modal>
+          <div className="form-row">
+            <label>Date</label>
+            <input
+              type="date"
+              name="meditation_date"
+              value={form.meditation_date}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="modal__actions">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </button>
+            <button className="btn" type="button" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

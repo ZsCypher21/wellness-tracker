@@ -1,4 +1,3 @@
-// server/index.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -14,8 +13,15 @@ const profileRoutes = require("./routes/profile");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// CORS — IMPORTANT for Vercel frontend
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://wellness-tracker-zs-c21.vercel.app/"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Health check route

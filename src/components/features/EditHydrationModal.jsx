@@ -1,53 +1,70 @@
-import { useState, useEffect } from "react";
-import Modal from "../ui/Modal";
+import { useState } from "react";
+import { useHydration } from "../../context/HydrationContext";
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
+import { formatLiters } from "../../utils/format";
 
 export default function EditHydrationModal({ open, hydration, onSave, onClose }) {
-  const [liters, setLiters] = useState("");
-  const [hydration_date, setDate] = useState("");
+  const { updateHydration, loading, error } = useHydration();
 
-  useEffect(() => {
-    if (hydration) {
-      setLiters(hydration.liters || "");
-      setDate(hydration.hydration_date || "");
-    }
-  }, [hydration]);
+  const [form, setForm] = useState({
+    liters: hydration?.liters || "",
+    hydration_date: hydration?.hydration_date || "",
+  });
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSave({
-      ...hydration,
-      liters,
-      hydration_date,
-    });
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    await updateHydration(hydration.id, form);
+    onSave();
+  }
+
+  if (!open) return null;
+
   return (
-    <Modal isOpen={open} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="feature-form">
-        <h3>Edit Hydration Entry</h3>
+    <div className="modal">
+      <div className="modal__content">
+        <h3>Edit Hydration</h3>
 
-        <div className="form-row">
-          <label>Liters</label>
-          <input
-            type="number"
-            value={liters}
-            onChange={(e) => setLiters(e.target.value)}
-          />
-        </div>
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
-        <div className="form-row">
-          <label>Date</label>
-          <input
-            type="date"
-            value={hydration_date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Liters</label>
+            <input
+              name="liters"
+              value={form.liters}
+              onChange={handleChange}
+              disabled={loading}
+            />
+            <small>Preview: {formatLiters(form.liters)} L</small>
+          </div>
 
-        <button className="btn-primary" type="submit">
-          Save Changes
-        </button>
-      </form>
-    </Modal>
+          <div className="form-row">
+            <label>Date</label>
+            <input
+              type="date"
+              name="hydration_date"
+              value={form.hydration_date}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="modal__actions">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </button>
+            <button className="btn" type="button" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

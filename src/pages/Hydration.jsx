@@ -5,19 +5,24 @@ import Modal from "../components/ui/Modal";
 import HydrationForm from "../components/features/HydrationForm";
 import EditHydrationModal from "../components/features/EditHydrationModal";
 import HistoryItem from "../components/common/HistoryItem";
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 import { Navigate } from "react-router-dom";
 import { putJson, deleteJson } from "../services/api";
+import { formatLiters } from "../utils/format";
 
 export default function Hydration() {
   const { token } = useAuth();
-  const { hydrationData, loading, loadRecent } = useHydration();
+  const { hydrationData, loading, error, loadRecent } = useHydration();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
   const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
-    if (token) loadRecent();
+    if (token) {
+      loadRecent();
+    }
   }, [token]);
 
   if (!token) return <Navigate to="/login" />;
@@ -26,14 +31,14 @@ export default function Hydration() {
 
   async function handleSave(updated) {
     await putJson(`/hydration/${updated.id}`, updated, token);
-    loadRecent();
+    await loadRecent();
     setEditOpen(false);
     setEditing(null);
   }
 
   async function handleDelete(item) {
     await deleteJson(`/hydration/${item.id}`, token);
-    loadRecent();
+    await loadRecent();
   }
 
   return (
@@ -41,7 +46,12 @@ export default function Hydration() {
       <div className="page__content">
         <h2>Hydration</h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && recent.length === 0 && (
+          <p className="empty-state">No hydration entries yet.</p>
+        )}
 
         <ul className="activity-list">
           {recent.map((h) => (
@@ -55,7 +65,7 @@ export default function Hydration() {
               onDelete={handleDelete}
               renderContent={(item) => (
                 <>
-                  <strong>{item.liters} L</strong>
+                  <strong>{formatLiters(item.liters)} L</strong>
                   <br />
                   <small>{item.hydration_date}</small>
                 </>
@@ -69,7 +79,10 @@ export default function Hydration() {
             Add Hydration
           </button>
 
-          <button className="btn" onClick={() => (window.location.href = "/hydration/history")}>
+          <button
+            className="btn"
+            onClick={() => (window.location.href = "/hydration/history")}
+          >
             History
           </button>
         </div>

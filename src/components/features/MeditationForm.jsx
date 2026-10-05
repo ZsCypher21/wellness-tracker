@@ -1,55 +1,57 @@
+// src/components/features/MeditationForm.jsx
 /**
+ * MeditationForm.jsx
+ * ---------------------------------------------------------
  * Form for adding a new meditation entry.
- *
- * Notes:
- * - Follows the same structure as ActivityForm, SleepForm,
- *   HydrationForm, and AppointmentForm.
- * - Only the fields differ (duration, date).
  *
  * Responsibilities:
  * - Manage local form state.
  * - Submit a new meditation entry to MeditationContext.
- * - Notify the parent component via onSubmit() so it can close
- *   modals or refresh lists.
+ * - Show loading + error states.
+ * - Disable submit button while saving.
  */
 
 import { useState } from "react";
 import { useMeditation } from "../../context/MeditationContext";
 
-export default function MeditationForm({ onSubmit }) {
-  const { addMeditation } = useMeditation();
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
-  // Local form state for meditation fields
+export default function MeditationForm({ onSubmit }) {
+  const { addMeditation, loading, error } = useMeditation();
+
   const [form, setForm] = useState({
     duration: "",
     date: "",
   });
 
-  /**
-   * Update form state when any input changes.
-   * Same pattern used across all feature forms.
-   */
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  /**
-   * Submit the new meditation entry.
-   * - Prevent default form submission.
-   * - Add the meditation record to global context.
-   * - Trigger parent callback (usually closes modal).
-   */
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    addMeditation(form);
+
+    await addMeditation(form);
     onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
+      {/*  Error */}
+      {error && <ErrorMessage message={error} />}
+
+      {/*  Loading */}
+      {loading && <Loading />}
+
       <div className="form-row">
         <label>Duration (mins)</label>
-        <input name="duration" value={form.duration} onChange={handleChange} />
+        <input
+          name="duration"
+          value={form.duration}
+          onChange={handleChange}
+          disabled={loading}
+        />
       </div>
 
       <div className="form-row">
@@ -59,11 +61,14 @@ export default function MeditationForm({ onSubmit }) {
           name="date"
           value={form.date}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit">Add</button>
+        <button className="btn-primary" type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Add"}
+        </button>
       </div>
     </form>
   );

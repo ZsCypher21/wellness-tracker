@@ -2,8 +2,11 @@
 import { useState } from "react";
 import { useAppointments } from "../../context/AppointmentContext";
 
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
+
 export default function AppointmentForm({ onSubmit }) {
-  const { addAppointment } = useAppointments();
+  const { addAppointment, loading, error } = useAppointments();
 
   const [form, setForm] = useState({
     appointment_type: "",
@@ -17,18 +20,26 @@ export default function AppointmentForm({ onSubmit }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     await addAppointment(form);
     onSubmit();
   }
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
+      {/* ⭐ Error */}
+      {error && <ErrorMessage message={error} />}
+
+      {/* ⭐ Loading */}
+      {loading && <Loading />}
+
       <div className="form-row">
         <label>Type</label>
         <input
           name="appointment_type"
           value={form.appointment_type}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
@@ -38,6 +49,7 @@ export default function AppointmentForm({ onSubmit }) {
           name="description"
           value={form.description}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
@@ -48,11 +60,14 @@ export default function AppointmentForm({ onSubmit }) {
           name="appointment_datetime"
           value={form.appointment_datetime}
           onChange={handleChange}
+          disabled={loading}
         />
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit">Add</button>
+        <button className="btn-primary" type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Add"}
+        </button>
       </div>
     </form>
   );

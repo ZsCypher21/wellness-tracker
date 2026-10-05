@@ -1,74 +1,79 @@
-import { useState, useEffect } from "react";
-import Modal from "../ui/Modal";
-
-function toLocalInputFormat(isoString) {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-
-  const hh = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
-
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-}
+import { useState } from "react";
+import { useAppointments } from "../../context/AppointmentContext";
+import Loading from "../ui/Loading";
+import ErrorMessage from "../ui/ErrorMessage";
 
 export default function EditAppointmentModal({ open, appointment, onSave, onClose }) {
+  const { updateAppointment, loading, error } = useAppointments();
+
   const [form, setForm] = useState({
-    appointment_type: "",
-    description: "",
-    appointment_datetime: "",
+    appointment_type: appointment?.appointment_type || "",
+    description: appointment?.description || "",
+    appointment_datetime: appointment?.appointment_datetime || "",
   });
-
-  useEffect(() => {
-  if (appointment) {
-    setForm({
-      appointment_type: appointment.appointment_type || "",
-      description: appointment.description || "",
-      appointment_datetime: toLocalInputFormat(appointment.appointment_datetime),
-    });
-  }
-}, [appointment]);
-
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onSave(form);
+    await updateAppointment(appointment.id, form);
+    onSave();
   }
 
+  if (!open) return null;
+
   return (
-    <Modal isOpen={open} onClose={onClose}>
-      <form className="feature-form" onSubmit={handleSubmit}>
+    <div className="modal">
+      <div className="modal__content">
         <h3>Edit Appointment</h3>
 
-        <div className="form-row">
-          <label>Type</label>
-          <input name="appointment_type" value={form.appointment_type} onChange={handleChange} />
-        </div>
+        {error && <ErrorMessage message={error} />}
+        {loading && <Loading />}
 
-        <div className="form-row">
-          <label>Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <label>Type</label>
+            <input
+              name="appointment_type"
+              value={form.appointment_type}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <div className="form-row">
-          <label>Date & Time</label>
-          <input
-            type="datetime-local"
-            name="appointment_datetime"
-            value={form.appointment_datetime}
-            onChange={handleChange}
-          />
-        </div>
+          <div className="form-row">
+            <label>Description</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-        <button className="btn-primary" type="submit">Save Changes</button>
-      </form>
-    </Modal>
+          <div className="form-row">
+            <label>Date & Time</label>
+            <input
+              type="datetime-local"
+              name="appointment_datetime"
+              value={form.appointment_datetime}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="modal__actions">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </button>
+            <button className="btn" type="button" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

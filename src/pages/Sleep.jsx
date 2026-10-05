@@ -5,12 +5,14 @@ import Modal from "../components/ui/Modal";
 import SleepForm from "../components/features/SleepForm";
 import EditSleepModal from "../components/features/EditSleepModal";
 import HistoryItem from "../components/common/HistoryItem";
+import Loading from "../components/ui/Loading";
+import ErrorMessage from "../components/ui/ErrorMessage";
 import { Navigate } from "react-router-dom";
 import { putJson, deleteJson } from "../services/api";
 
 export default function Sleep() {
   const { token } = useAuth();
-  const { sleepEntries, loading, loadRecent } = useSleep();
+  const { sleepEntries, loading, error, loadRecent } = useSleep();
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -41,7 +43,12 @@ export default function Sleep() {
       <div className="page__content">
         <h2>Sleep</h2>
 
-        {loading && <p>Loading...</p>}
+        {loading && <Loading />}
+        {error && <ErrorMessage message={error} />}
+
+        {!loading && !error && recent.length === 0 && (
+          <p className="empty-state">No sleep entries yet.</p>
+        )}
 
         <ul className="activity-list">
           {recent.map((s) => (

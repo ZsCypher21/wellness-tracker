@@ -1,6 +1,5 @@
-// src/services/api.js
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Generic GET request
@@ -64,7 +63,6 @@ export async function deleteJson(path, token = null) {
     }
   });
 
-  // Some delete routes return empty body, so we handle that safely
   try {
     return await res.json();
   } catch {
