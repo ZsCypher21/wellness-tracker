@@ -85,6 +85,7 @@ const pool = require('./db');
 async function initDb() {
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await pool.query(schema);
+  await require('./migrate')();
   console.log('Database schema ready');
 }
 
