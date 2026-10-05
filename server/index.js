@@ -17,10 +17,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://wellness-tracker-zs-c21.vercel.app/"
+    "https://wellness-tracker-zs-c21.vercel.app",
+    "https://wellness-tracker-two-lime.vercel.app"
   ],
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 app.use(express.json());
 
