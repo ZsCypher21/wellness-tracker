@@ -1,105 +1,37 @@
 /**
- * Central analytics component for the Wellness Tracker.
- *
- * Responsibilities:
- * - Fetch recent data from all wellness contexts.
- * - Compute high-level metrics (averages, totals, streaks).
- * - Display dashboard cards in a responsive grid.
+ * Dashboard stat cards: this week's total for each module, with progress
+ * towards the weekly goal set on the Profile page. Each card links to its
+ * module page.
  */
+import { Link } from "react-router-dom";
+import Icon from "../ui/Icon";
+import { MODULES, round1 } from "../../utils/modules";
 
-import { useActivities } from "../../context/ActivityContext";
-import { useSleep } from "../../context/SleepContext";
-import { useHydration } from "../../context/HydrationContext";
-import { useMeditation } from "../../context/MeditationContext";
-import { useAppointments } from "../../context/AppointmentContext";
-
-import { formatLiters } from "../../utils/format";
-
-export default function ProgressDashboard() {
-  // ----- Contexts with safe fallbacks -----
-  const { activities = [] } = useActivities() || {};
-  const { sleepEntries = [] } = useSleep() || {};
-  const { hydrationData = [] } = useHydration() || {};
-  const { meditations = [] } = useMeditation() || {};
-  const { upcoming = [] } = useAppointments() || {};
-
-  // ----- Activities -----
-  const totalActivityMinutes = activities.reduce(
-    (sum, a) => sum + Number(a.duration_minutes || 0),
-    0
-  );
-
-  // ----- Sleep -----
-  const avgSleep =
-    sleepEntries.length > 0
-      ? (
-          sleepEntries.reduce(
-            (sum, s) => sum + Number(s.hours_slept || 0),
-            0
-          ) / sleepEntries.length
-        ).toFixed(1)
-      : 0;
-
-  // ----- Hydration (FIXED) -----
-  const totalHydration = hydrationData.reduce(
-    (sum, h) => sum + Number(h.liters || 0),
-    0
-  );
-
-  // ----- Meditation -----
-  const totalMeditationMinutes = meditations.reduce(
-    (sum, m) => sum + Number(m.duration_minutes || 0),
-    0
-  );
-
-  // ----- Appointments -----
-  const nextAppointment = upcoming.length > 0 ? upcoming[0] : null;
-
+export default function ProgressDashboard({ stats }) {
   return (
-    <>
-      {/* Activity Summary */}
-      <div className="dashboard-card">
-        <h3>Activity</h3>
-        <p>{totalActivityMinutes} mins logged</p>
-      </div>
-
-      {/* Sleep Summary */}
-      <div className="dashboard-card">
-        <h3>Sleep</h3>
-        <p>Avg {avgSleep} hrs/night</p>
-      </div>
-
-      {/* Hydration Summary (FIXED) */}
-      <div className="dashboard-card">
-        <h3>Hydration</h3>
-        <p>{formatLiters(totalHydration)} L consumed</p>
-      </div>
-
-      {/* Meditation Summary */}
-      <div className="dashboard-card">
-        <h3>Meditation</h3>
-        <p>{totalMeditationMinutes} mins total</p>
-      </div>
-
-      {/* Upcoming Appointment */}
-      <div className="dashboard-card">
-        <h3>Next Appointment</h3>
-        {nextAppointment ? (
-          <>
-            <strong>{nextAppointment.appointment_type}</strong>
-            <br />
-            {nextAppointment.description && (
-              <small>{nextAppointment.description}</small>
-            )}
-            <br />
-            <small>
-              {new Date(nextAppointment.appointment_datetime).toLocaleString()}
-            </small>
-          </>
-        ) : (
-          <p>No upcoming appointments</p>
-        )}
-      </div>
-    </>
+    <div className="stat-grid">
+      {stats.map(({ key, value, goal }) => {
+        const m = MODULES[key];
+        const pct = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : null;
+        return (
+          <Link key={key} to={m.path} className="card stat-card" style={{ "--tile-color": m.color }}>
+            <div className="stat-card__top">
+              <span className="tile-icon"><Icon name={m.icon} size={20} /></span>
+              <span className="stat-card__label">{m.label}</span>
+            </div>
+            <p className="stat">
+              {round1(value)}
+              <span className="stat__unit">{m.unit}</span>
+            </p>
+            <div className="goal__track goal__track--thin" aria-hidden="true">
+              <div className="goal__fill" style={{ width: `${pct || 0}%`, background: m.color }} />
+            </div>
+            <p className="muted small">
+              {pct === null ? "No weekly goal set" : `${pct}% of ${round1(goal)} ${m.unit} goal`}
+            </p>
+          </Link>
+        );
+      })}
+    </div>
   );
 }

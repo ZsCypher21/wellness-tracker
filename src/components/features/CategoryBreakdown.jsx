@@ -1,7 +1,9 @@
 /**
- * Breakdown of logged activities by type (count + total minutes).
+ * Breakdown of all logged activities by type, as horizontal bars
+ * (total minutes), with session counts.
  */
 import { useActivities } from "../../context/ActivityContext";
+import { MODULES } from "../../utils/modules";
 
 export default function CategoryBreakdown() {
   const { activities = [] } = useActivities();
@@ -17,18 +19,32 @@ export default function CategoryBreakdown() {
   });
 
   const rows = Object.entries(byType).sort((a, b) => b[1].minutes - a[1].minutes);
+  const max = rows.length ? rows[0][1].minutes : 0;
 
   return (
-    <div className="progress-card">
-      <h3>Category Breakdown</h3>
+    <section className="card">
+      <div className="card__header">
+        <h2 className="card__title">Activity breakdown</h2>
+        <span className="muted small">All time, by minutes</span>
+      </div>
 
-      <h4>Activities</h4>
-      {rows.length === 0 && <p>No activities logged.</p>}
-      {rows.map(([type, { count, minutes }]) => (
-        <p key={type}>
-          {type}: {count} {count === 1 ? "session" : "sessions"}, {minutes} mins
-        </p>
-      ))}
-    </div>
+      {rows.length === 0 && <p className="muted">No activities logged.</p>}
+
+      <ul className="bar-list">
+        {rows.map(([type, { count, minutes }]) => (
+          <li key={type} className="bar-list__row">
+            <div className="bar-list__label">
+              <span>{type}</span>
+              <span className="muted small">
+                {minutes} mins · {count} {count === 1 ? "session" : "sessions"}
+              </span>
+            </div>
+            <div className="goal__track" aria-hidden="true">
+              <div className="goal__fill" style={{ width: `${max ? (minutes / max) * 100 : 0}%`, background: MODULES.activity.color }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

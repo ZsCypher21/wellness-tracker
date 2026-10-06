@@ -6,8 +6,8 @@
  * It calls onSave(updatedEntry); the parent page performs the API request.
  */
 import { useState } from "react";
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import Modal from "../ui/Modal";
 
 export default function EditActivityModal({ open, activity, onSave, onClose }) {
   if (!open || !activity) return null;
@@ -41,17 +41,15 @@ function EditForm({ item, onSave, onClose }) {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-window">
-        <h3>Edit Activity</h3>
+    <Modal isOpen onClose={onClose} title="Edit activity">
 
         {error && <ErrorMessage message={error} />}
-        {saving && <Loading />}
 
-        <form onSubmit={handleSubmit}>
+        <form className="feature-form" onSubmit={handleSubmit}>
           <div className="form-row">
-            <label>Type</label>
+            <label htmlFor="edit-activity-modal-activity-type">Type</label>
             <input
+              id="edit-activity-modal-activity-type"
               type="text"
               name="activity_type"
               value={form.activity_type}
@@ -61,8 +59,9 @@ function EditForm({ item, onSave, onClose }) {
             />
           </div>
           <div className="form-row">
-            <label>Duration (mins)</label>
+            <label htmlFor="edit-activity-modal-duration-minutes">Duration (mins)</label>
             <input
+              id="edit-activity-modal-duration-minutes"
               type="number"
               name="duration_minutes"
               value={form.duration_minutes}
@@ -73,8 +72,9 @@ function EditForm({ item, onSave, onClose }) {
             />
           </div>
           <div className="form-row">
-            <label>Date</label>
+            <label htmlFor="edit-activity-modal-activity-date">Date</label>
             <input
+              id="edit-activity-modal-activity-date"
               type="date"
               name="activity_date"
               value={form.activity_date}
@@ -85,15 +85,14 @@ function EditForm({ item, onSave, onClose }) {
           </div>
 
           <div className="modal__actions">
-            <button className="btn-primary" type="submit" disabled={saving}>
+            <button className="btn btn--primary" type="submit" disabled={saving}>
               {saving ? "Saving..." : "Save"}
             </button>
-            <button className="btn" type="button" onClick={onClose} disabled={saving}>
+            <button className="btn btn--ghost" type="button" onClick={onClose} disabled={saving}>
               Cancel
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -63,23 +63,8 @@ export default function App() {
    */
   const hideLayout = location.pathname === "/login" || location.pathname === "/";
 
-  return (
+  const routes = (
     <>
-      {/* Navbar */}
-      {!hideLayout && <Navbar onToggleSidebar={toggleSidebar} />}
-
-      {/* Sidebar + Overlay */}
-      {!hideLayout && (
-        <>
-          <Sidebar isOpen={sidebarOpen} onClose={toggleSidebar} />
-
-          <div
-            className={`sidebar-overlay ${sidebarOpen ? "active" : ""}`}
-            onClick={toggleSidebar}
-          />
-        </>
-      )}
-
       {/* Routes */}
       <Routes>
         {/* Public Routes */}
@@ -205,9 +190,29 @@ export default function App() {
         {/* Fallback */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-
-      {/* Footer */}
-      {!hideLayout && <Footer />}
     </>
+  );
+
+  // Login screen: no navigation chrome
+  if (hideLayout) return routes;
+
+  return (
+    <div className="app">
+      <Navbar onToggleSidebar={toggleSidebar} />
+
+      <div className="shell">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div
+          className={`sidebar-overlay${sidebarOpen ? " sidebar-overlay--active" : ""}`}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+
+        <main className="shell__main" id="main">
+          {routes}
+          <Footer />
+        </main>
+      </div>
+    </div>
   );
 }

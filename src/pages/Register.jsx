@@ -60,22 +60,25 @@ export default function Register() {
       {loading && <Loading />}
 
       <form onSubmit={submit} className="auth-form">
-        <label>First Name</label>
+        <label htmlFor="register-first-name">First Name</label>
         <input
+          id="register-first-name"
           value={first_name}
           onChange={(e) => setFirstName(e.target.value)}
           disabled={loading}
         />
 
-        <label>Last Name</label>
+        <label htmlFor="register-last-name">Last Name</label>
         <input
+          id="register-last-name"
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
           disabled={loading}
         />
 
-        <label>Email</label>
+        <label htmlFor="register-email">Email</label>
         <input
+          id="register-email"
           type="email"
           autoComplete="email"
           value={email}
@@ -83,8 +86,9 @@ export default function Register() {
           disabled={loading}
         />
 
-        <label>Password</label>
+        <label htmlFor="register-password">Password</label>
         <input
+          id="register-password"
           type="password"
           autoComplete="new-password"
           minLength={6}
@@ -93,8 +97,9 @@ export default function Register() {
           disabled={loading}
         />
 
-        <label>Confirm Password</label>
+        <label htmlFor="register-confirm">Confirm Password</label>
         <input
+          id="register-confirm"
           type="password"
           autoComplete="new-password"
           value={confirm}

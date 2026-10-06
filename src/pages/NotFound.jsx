@@ -1,20 +1,18 @@
-/**
- *
- * Purpose:
- * - Provide a simple, friendly 404 message.
- * - Improve user experience by clearly indicating that the
- *   requested page does not exist.
- *
- * Routing:
- * - App.jsx maps all unknown paths ("*") to this component.
- * - Ensures the app handles navigation errors gracefully.
- */
+import { Link } from "react-router-dom";
+import EmptyState from "../components/ui/EmptyState";
 
+// Shown for any unknown route
 export default function NotFound() {
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>404 – Page Not Found</h1>
-      <p>The page you are looking for does not exist.</p>
+    <div className="page">
+      <div className="card">
+        <EmptyState
+          icon="alert"
+          title="Page not found"
+          text="The page you’re looking for doesn’t exist or has moved."
+          action={<Link className="btn btn--primary" to="/dashboard">Go to dashboard</Link>}
+        />
+      </div>
     </div>
   );
 }

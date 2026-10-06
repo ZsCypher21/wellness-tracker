@@ -6,8 +6,8 @@
  * It calls onSave(updatedEntry); the parent page performs the API request.
  */
 import { useState } from "react";
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import Modal from "../ui/Modal";
 import { formatLiters } from "../../utils/format";
 
 export default function EditHydrationModal({ open, hydration, onSave, onClose }) {
@@ -41,17 +41,15 @@ function EditForm({ item, onSave, onClose }) {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-window">
-        <h3>Edit Hydration</h3>
+    <Modal isOpen onClose={onClose} title="Edit hydration">
 
         {error && <ErrorMessage message={error} />}
-        {saving && <Loading />}
 
-        <form onSubmit={handleSubmit}>
+        <form className="feature-form" onSubmit={handleSubmit}>
           <div className="form-row">
-            <label>Liters</label>
+            <label htmlFor="edit-hydration-modal-liters">Liters</label>
             <input
+              id="edit-hydration-modal-liters"
               type="number"
               name="liters"
               value={form.liters}
@@ -64,8 +62,9 @@ function EditForm({ item, onSave, onClose }) {
             {form.liters !== "" && <small>Preview: {formatLiters(form.liters)} L</small>}
           </div>
           <div className="form-row">
-            <label>Date</label>
+            <label htmlFor="edit-hydration-modal-hydration-date">Date</label>
             <input
+              id="edit-hydration-modal-hydration-date"
               type="date"
               name="hydration_date"
               value={form.hydration_date}
@@ -76,15 +75,14 @@ function EditForm({ item, onSave, onClose }) {
           </div>
 
           <div className="modal__actions">
-            <button className="btn-primary" type="submit" disabled={saving}>
+            <button className="btn btn--primary" type="submit" disabled={saving}>
               {saving ? "Saving..." : "Save"}
             </button>
-            <button className="btn" type="button" onClick={onClose} disabled={saving}>
+            <button className="btn btn--ghost" type="button" onClick={onClose} disabled={saving}>
               Cancel
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -1,27 +1,30 @@
 /**
- * Simple reusable modal component.
- *
- * Notes:
- * - Very small component, so comments focus only on the core logic.
- * - Modal rendering is controlled entirely by the `isOpen` prop.
- * - Parent components supply the content via `children`.
- *
- * Responsibilities:
- * - Render a modal overlay + window when `isOpen` is true.
- * - Provide a close button that triggers the parent’s onClose().
+ * Reusable modal dialog.
+ * - Rendered only when `isOpen` is true.
+ * - Closes on the X button, the Escape key, or a click on the dim background.
  */
+import { useEffect } from "react";
+import Icon from "./Icon";
 
-export default function Modal({ isOpen, onClose, children }) {
-  // Do not render anything if the modal is closed
+export default function Modal({ isOpen, onClose, title, children }) {
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKey = (e) => e.key === "Escape" && onClose?.();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-window">
-        {/* Close button delegates control back to the parent */}
-        <button className="modal-close" onClick={onClose}>×</button>
-
-        {/* Modal content supplied by the parent component */}
+    <div className="modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
+      <div className="modal-window" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="modal-window__header">
+          {title && <h2 className="modal-window__title">{title}</h2>}
+          <button className="icon-btn" onClick={onClose} aria-label="Close">
+            <Icon name="close" size={20} />
+          </button>
+        </div>
         {children}
       </div>
     </div>

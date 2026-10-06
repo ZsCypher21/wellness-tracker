@@ -4,7 +4,6 @@ import { postJson } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 
 export default function RegisterForm({ onSuccess }) {
@@ -56,17 +55,14 @@ export default function RegisterForm({ onSuccess }) {
 
   return (
     <form onSubmit={submit} className="feature-form">
-      <h3>Create Account</h3>
 
-      {/*  Error */}
       {error && <ErrorMessage message={error} />}
 
-      {/* Loading */}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>First Name</label>
+        <label htmlFor="register-form-first-name">First Name</label>
         <input
+          id="register-form-first-name"
           value={first_name}
           onChange={(e) => setFirstName(e.target.value)}
           disabled={loading}
@@ -74,8 +70,9 @@ export default function RegisterForm({ onSuccess }) {
       </div>
 
       <div className="form-row">
-        <label>Last Name</label>
+        <label htmlFor="register-form-last-name">Last Name</label>
         <input
+          id="register-form-last-name"
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
           disabled={loading}
@@ -83,8 +80,9 @@ export default function RegisterForm({ onSuccess }) {
       </div>
 
       <div className="form-row">
-        <label>Email</label>
+        <label htmlFor="register-form-email">Email</label>
         <input
+          id="register-form-email"
           type="email"
           autoComplete="email"
           value={email}
@@ -94,8 +92,9 @@ export default function RegisterForm({ onSuccess }) {
       </div>
 
       <div className="form-row">
-        <label>Password</label>
+        <label htmlFor="register-form-password">Password</label>
         <input
+          id="register-form-password"
           type="password"
           autoComplete="new-password"
           minLength={6}
@@ -106,8 +105,9 @@ export default function RegisterForm({ onSuccess }) {
       </div>
 
       <div className="form-row">
-        <label>Confirm Password</label>
+        <label htmlFor="register-form-confirm">Confirm Password</label>
         <input
+          id="register-form-confirm"
           type="password"
           autoComplete="new-password"
           value={confirm}
@@ -117,7 +117,7 @@ export default function RegisterForm({ onSuccess }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </button>
       </div>

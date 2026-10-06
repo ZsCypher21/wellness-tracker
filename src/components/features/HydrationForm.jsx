@@ -13,7 +13,6 @@
 import { useState } from "react";
 import { useHydration } from "../../context/HydrationContext";
 
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 import { toInputDate } from "../../utils/date";
 
@@ -38,15 +37,13 @@ export default function HydrationForm({ onSubmit }) {
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      {/* Error */}
       {error && <ErrorMessage message={error} />}
 
-      {/* Loading */}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>Liters</label>
+        <label htmlFor="hydration-form-liters">Liters</label>
         <input
+          id="hydration-form-liters"
           type="number"
           min="0.1"
           step="0.1"
@@ -59,8 +56,9 @@ export default function HydrationForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Date</label>
+        <label htmlFor="hydration-form-date">Date</label>
         <input
+          id="hydration-form-date"
           type="date"
           name="date"
           value={form.date}
@@ -71,8 +69,8 @@ export default function HydrationForm({ onSubmit }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Add"}
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+          {loading ? "Saving…" : "Save entry"}
         </button>
       </div>
     </form>

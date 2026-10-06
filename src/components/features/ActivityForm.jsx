@@ -12,7 +12,6 @@
 
 import { useState } from "react";
 import { useActivities } from "../../context/ActivityContext";
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 import { toInputDate } from "../../utils/date";
 
@@ -40,11 +39,11 @@ export default function ActivityForm({ onSubmit }) {
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
       {error && <ErrorMessage message={error} />}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>Activity Type</label>
+        <label htmlFor="activity-form-type">Activity Type</label>
         <input
+          id="activity-form-type"
           name="type"
           value={form.type}
           onChange={handleChange}
@@ -54,8 +53,9 @@ export default function ActivityForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Duration (mins)</label>
+        <label htmlFor="activity-form-duration">Duration (mins)</label>
         <input
+          id="activity-form-duration"
           type="number"
           min="1"
           name="duration"
@@ -67,8 +67,9 @@ export default function ActivityForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Date</label>
+        <label htmlFor="activity-form-date">Date</label>
         <input
+          id="activity-form-date"
           type="date"
           name="date"
           value={form.date}
@@ -79,8 +80,8 @@ export default function ActivityForm({ onSubmit }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Add"}
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+          {loading ? "Saving…" : "Save entry"}
         </button>
       </div>
     </form>

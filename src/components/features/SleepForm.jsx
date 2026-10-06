@@ -14,7 +14,6 @@
 import { useState } from "react";
 import { useSleep } from "../../context/SleepContext";
 
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 import { toInputDate } from "../../utils/date";
 
@@ -40,15 +39,13 @@ export default function SleepForm({ onSubmit }) {
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      {/*  Error */}
       {error && <ErrorMessage message={error} />}
 
-      {/*  Loading */}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>Hours Slept</label>
+        <label htmlFor="sleep-form-hours">Hours Slept</label>
         <input
+          id="sleep-form-hours"
           type="number"
           min="0.5"
           max="24"
@@ -62,8 +59,9 @@ export default function SleepForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Date</label>
+        <label htmlFor="sleep-form-date">Date</label>
         <input
+          id="sleep-form-date"
           type="date"
           name="date"
           value={form.date}
@@ -74,8 +72,8 @@ export default function SleepForm({ onSubmit }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Add"}
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+          {loading ? "Saving…" : "Save entry"}
         </button>
       </div>
     </form>

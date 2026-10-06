@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useAppointments } from "../../context/AppointmentContext";
 
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 
 export default function AppointmentForm({ onSubmit }) {
@@ -28,15 +27,13 @@ export default function AppointmentForm({ onSubmit }) {
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      {/* ⭐ Error */}
       {error && <ErrorMessage message={error} />}
 
-      {/* ⭐ Loading */}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>Type</label>
+        <label htmlFor="appointment-form-appointment-type">Type</label>
         <input
+          id="appointment-form-appointment-type"
           name="appointment_type"
           value={form.appointment_type}
           onChange={handleChange}
@@ -46,8 +43,9 @@ export default function AppointmentForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Description</label>
+        <label htmlFor="appointment-form-description">Description</label>
         <textarea
+          id="appointment-form-description"
           name="description"
           value={form.description}
           onChange={handleChange}
@@ -56,8 +54,9 @@ export default function AppointmentForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Date & Time</label>
+        <label htmlFor="appointment-form-appointment-datetime">Date & Time</label>
         <input
+          id="appointment-form-appointment-datetime"
           type="datetime-local"
           name="appointment_datetime"
           value={form.appointment_datetime}
@@ -68,8 +67,8 @@ export default function AppointmentForm({ onSubmit }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Add"}
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+          {loading ? "Saving…" : "Save entry"}
         </button>
       </div>
     </form>

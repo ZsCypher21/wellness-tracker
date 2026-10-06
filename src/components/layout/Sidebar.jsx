@@ -1,47 +1,62 @@
 /**
- * Slide‑in navigation menu for the Wellness Tracker.
- *
- * Notes:
- * - This component is purely UI/UX (no data logic).
- * - Visibility is controlled by the parent via `isOpen`.
- * - Uses a simple translateX animation instead of conditional rendering,
- *   allowing smooth transitions.
- *
- * Responsibilities:
- * - Show/hide the sidebar based on `isOpen`.
- * - Provide navigation links to all major app sections.
- * - Close automatically when a link is clicked.
+ * Sidebar navigation.
+ * - Desktop (>= 1024px): always visible on the left.
+ * - Smaller screens: slides in from the left when `isOpen` is true.
+ * NavLink highlights the page the user is currently on.
  */
+import { NavLink } from "react-router-dom";
+import Icon from "../ui/Icon";
+import { MODULES } from "../../utils/modules";
 
-import { Link } from "react-router-dom";
+const LINKS = [
+  { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { to: MODULES.activity.path, label: "Activities", icon: "activity", color: MODULES.activity.color },
+  { to: MODULES.sleep.path, label: "Sleep", icon: "sleep", color: MODULES.sleep.color },
+  { to: MODULES.hydration.path, label: "Hydration", icon: "hydration", color: MODULES.hydration.color },
+  { to: MODULES.meditation.path, label: "Meditation", icon: "meditation", color: MODULES.meditation.color },
+  { to: MODULES.appointments.path, label: "Appointments", icon: "appointments", color: MODULES.appointments.color },
+];
+
+const INSIGHTS = [
+  { to: "/progress", label: "Progress", icon: "progress" },
+  { to: "/profile", label: "Profile & goals", icon: "profile" },
+];
+
+function NavItem({ link, onNavigate }) {
+  return (
+    <li>
+      <NavLink
+        to={link.to}
+        onClick={onNavigate}
+        className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+        style={link.color ? { "--item-color": link.color } : undefined}
+      >
+        <span className="nav-link__icon"><Icon name={link.icon} size={19} /></span>
+        {link.label}
+      </NavLink>
+    </li>
+  );
+}
 
 export default function Sidebar({ isOpen, onClose }) {
   return (
-    <div
-      className="sidebar"
-      style={{
-        // Slide-in animation: off-screen when closed, visible when open
-        transform: isOpen ? "translateX(0)" : "translateX(-100%)",
-      }}
-    >
-      <div className="sidebar-header">
-        <h3>Menu</h3>
-
-        {/* Close button delegates control back to the parent */}
-        <button className="sidebar-close" onClick={onClose}>✕</button>
+    <aside className={`sidebar${isOpen ? " sidebar--open" : ""}`} aria-label="Main navigation">
+      <div className="sidebar__header">
+        <span className="sidebar__title">Menu</span>
+        <button className="icon-btn sidebar__close" onClick={onClose} aria-label="Close menu">
+          <Icon name="close" size={20} />
+        </button>
       </div>
 
-      {/* Navigation links — clicking closes the sidebar */}
-      <ul className="sidebar-links">
-        <li><Link to="/dashboard" onClick={onClose}>Dashboard</Link></li>
-        <li><Link to="/activities" onClick={onClose}>Activities</Link></li>
-        <li><Link to="/sleep" onClick={onClose}>Sleep</Link></li>
-        <li><Link to="/meditation" onClick={onClose}>Meditation</Link></li>
-        <li><Link to="/hydration" onClick={onClose}>Hydration</Link></li>
-        <li><Link to="/appointments" onClick={onClose}>Appointments</Link></li>
-        <li><Link to="/progress" onClick={onClose}>Progress</Link></li>
-        <li><Link to="/profile" onClick={onClose}>Profile</Link></li>
+      <p className="sidebar__section">Track</p>
+      <ul className="sidebar__links">
+        {LINKS.map((link) => <NavItem key={link.to} link={link} onNavigate={onClose} />)}
       </ul>
-    </div>
+
+      <p className="sidebar__section">Insights</p>
+      <ul className="sidebar__links">
+        {INSIGHTS.map((link) => <NavItem key={link.to} link={link} onNavigate={onClose} />)}
+      </ul>
+    </aside>
   );
 }

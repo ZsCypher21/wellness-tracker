@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer className="footer" aria-label="Site footer">
-      <p>© 2026 Wellness Tracker</p>
+      © {new Date().getFullYear()} Wellness Tracker · Built with React, Express &amp; PostgreSQL
     </footer>
   );
 }

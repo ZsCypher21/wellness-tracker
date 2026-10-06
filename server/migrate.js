@@ -106,6 +106,24 @@ async function migrate() {
     console.error('MIGRATE: could not add unique index on user_settings.user_id:', err.message);
   }
 
+  // Indexes: every list query filters by user_id and sorts by date, so these
+  // keep history pages fast as the number of entries grows.
+  const indexes = [
+    'CREATE INDEX IF NOT EXISTS idx_activities_user_date ON activities (user_id, activity_date DESC)',
+    'CREATE INDEX IF NOT EXISTS idx_sleep_logs_user_date ON sleep_logs (user_id, sleep_date DESC)',
+    'CREATE INDEX IF NOT EXISTS idx_meditation_logs_user_date ON meditation_logs (user_id, meditation_date DESC)',
+    'CREATE INDEX IF NOT EXISTS idx_hydration_logs_user_date ON hydration_logs (user_id, hydration_date DESC)',
+    'CREATE INDEX IF NOT EXISTS idx_appointments_user_datetime ON appointments (user_id, appointment_datetime)',
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email))',
+  ];
+  for (const sql of indexes) {
+    try {
+      await pool.query(sql);
+    } catch (err) {
+      console.error(`MIGRATE: index skipped (${err.message})`);
+    }
+  }
+
   console.log('Database migration check complete');
 }
 

@@ -14,7 +14,6 @@
 import { useState } from "react";
 import { useMeditation } from "../../context/MeditationContext";
 
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
 import { toInputDate } from "../../utils/date";
 
@@ -40,15 +39,13 @@ export default function MeditationForm({ onSubmit }) {
 
   return (
     <form className="feature-form" onSubmit={handleSubmit}>
-      {/*  Error */}
       {error && <ErrorMessage message={error} />}
 
-      {/*  Loading */}
-      {loading && <Loading />}
 
       <div className="form-row">
-        <label>Duration (mins)</label>
+        <label htmlFor="meditation-form-duration">Duration (mins)</label>
         <input
+          id="meditation-form-duration"
           type="number"
           min="1"
           name="duration"
@@ -60,8 +57,9 @@ export default function MeditationForm({ onSubmit }) {
       </div>
 
       <div className="form-row">
-        <label>Date</label>
+        <label htmlFor="meditation-form-date">Date</label>
         <input
+          id="meditation-form-date"
           type="date"
           name="date"
           value={form.date}
@@ -72,8 +70,8 @@ export default function MeditationForm({ onSubmit }) {
       </div>
 
       <div className="btn-center">
-        <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Add"}
+        <button className="btn btn--primary btn--block" type="submit" disabled={loading}>
+          {loading ? "Saving…" : "Save entry"}
         </button>
       </div>
     </form>

@@ -6,8 +6,8 @@
  * It calls onSave(updatedEntry); the parent page performs the API request.
  */
 import { useState } from "react";
-import Loading from "../ui/Loading";
 import ErrorMessage from "../ui/ErrorMessage";
+import Modal from "../ui/Modal";
 import { toInputDateTime } from "../../utils/date";
 
 export default function EditAppointmentModal({ open, appointment, onSave, onClose }) {
@@ -42,17 +42,15 @@ function EditForm({ item, onSave, onClose }) {
   }
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-window">
-        <h3>Edit Appointment</h3>
+    <Modal isOpen onClose={onClose} title="Edit appointment">
 
         {error && <ErrorMessage message={error} />}
-        {saving && <Loading />}
 
-        <form onSubmit={handleSubmit}>
+        <form className="feature-form" onSubmit={handleSubmit}>
           <div className="form-row">
-            <label>Type</label>
+            <label htmlFor="edit-appointment-modal-appointment-type">Type</label>
             <input
+              id="edit-appointment-modal-appointment-type"
               type="text"
               name="appointment_type"
               value={form.appointment_type}
@@ -62,8 +60,9 @@ function EditForm({ item, onSave, onClose }) {
             />
           </div>
           <div className="form-row">
-            <label>Description</label>
+            <label htmlFor="edit-appointment-modal-description">Description</label>
             <textarea
+              id="edit-appointment-modal-description"
               name="description"
               value={form.description}
               onChange={handleChange}
@@ -71,8 +70,9 @@ function EditForm({ item, onSave, onClose }) {
             />
           </div>
           <div className="form-row">
-            <label>Date & Time</label>
+            <label htmlFor="edit-appointment-modal-appointment-datetime">Date & Time</label>
             <input
+              id="edit-appointment-modal-appointment-datetime"
               type="datetime-local"
               name="appointment_datetime"
               value={form.appointment_datetime}
@@ -83,15 +83,14 @@ function EditForm({ item, onSave, onClose }) {
           </div>
 
           <div className="modal__actions">
-            <button className="btn-primary" type="submit" disabled={saving}>
+            <button className="btn btn--primary" type="submit" disabled={saving}>
               {saving ? "Saving..." : "Save"}
             </button>
-            <button className="btn" type="button" onClick={onClose} disabled={saving}>
+            <button className="btn btn--ghost" type="button" onClick={onClose} disabled={saving}>
               Cancel
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -26,6 +26,7 @@ import Recommendations from "../components/features/Recommendations";
 
 import Loading from "../components/ui/Loading";
 import ErrorMessage from "../components/ui/ErrorMessage";
+import EmptyState from "../components/ui/EmptyState";
 
 export default function Progress() {
   // Pull data + loading + error from all contexts
@@ -54,22 +55,24 @@ export default function Progress() {
 
   if (noData) {
     return (
-      <PageContainer title="Progress">
-        <p className="empty-state">No wellness data available yet.</p>
+      <PageContainer title="Progress" subtitle="Your weekly summary and personalised recommendations." icon="progress">
+        <EmptyState title="No wellness data yet" text="Log an activity, sleep, water or meditation entry to see your progress." />
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer title="Progress">
+    <PageContainer title="Progress" subtitle="Your weekly summary and personalised recommendations." icon="progress">
       {/* Weekly totals and key metrics */}
       <WeeklySummary />
 
-      {/* Breakdown of activities by category */}
-      <CategoryBreakdown />
+      <div className="two-col">
+        {/* Breakdown of activities by category */}
+        <CategoryBreakdown />
 
-      {/* Personalized suggestions based on user data */}
-      <Recommendations />
+        {/* Personalized suggestions based on user data */}
+        <Recommendations />
+      </div>
     </PageContainer>
   );
 }

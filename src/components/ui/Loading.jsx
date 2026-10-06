@@ -1,12 +1,9 @@
-export default function Loading() {
+// Small spinner with an announced "Loading" label for screen readers
+export default function Loading({ label = "Loading…" }) {
   return (
-    <div style={{
-      textAlign: "center",
-      padding: "2rem",
-      fontSize: "1.1rem",
-      color: "var(--text-light)"
-    }}>
-      Loading...
+    <div className="loading" role="status" aria-live="polite">
+      <span className="spinner" aria-hidden="true" />
+      <span>{label}</span>
     </div>
   );
 }

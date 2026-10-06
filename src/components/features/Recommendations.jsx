@@ -9,6 +9,8 @@ import { useHydration } from "../../context/HydrationContext";
 import { useActivities } from "../../context/ActivityContext";
 import { useAppointments } from "../../context/AppointmentContext";
 import { useProfile } from "../../context/ProfileContext";
+import { MODULES } from "../../utils/modules";
+import Icon from "../ui/Icon";
 
 export default function Recommendations() {
   const { weeklySleepHours = 0 } = useSleep();
@@ -26,31 +28,40 @@ export default function Recommendations() {
     activity: profile?.activity_goal || 150, // WHO weekly guideline
   };
 
-  const tips = [];
-  if (weeklySleepHours < goals.sleep) {
-    tips.push("Try to improve your sleep routine — aim for consistent hours each night.");
-  }
-  if (weeklyHydrationLiters < goals.hydration) {
-    tips.push("Increase your water intake — small, frequent drinks help.");
-  }
-  if (weeklyMeditationMinutes < goals.meditation) {
-    tips.push("Consider adding short meditation sessions to reduce stress.");
-  }
-  if (weeklyActivityMinutes < goals.activity) {
-    tips.push("Boost your activity levels — even light exercise makes a difference.");
-  }
-  if (upcoming.length === 0) {
-    tips.push("No upcoming appointments — check if any check-ups or follow-ups are due.");
-  }
+  const checks = [
+    { key: "sleep", ok: weeklySleepHours >= goals.sleep,
+      tip: "Try to improve your sleep routine — aim for consistent hours each night.",
+      done: "You're meeting your sleep goal." },
+    { key: "hydration", ok: weeklyHydrationLiters >= goals.hydration,
+      tip: "Increase your water intake — small, frequent drinks help.",
+      done: "You're drinking enough water this week." },
+    { key: "meditation", ok: weeklyMeditationMinutes >= goals.meditation,
+      tip: "Consider adding short meditation sessions to reduce stress.",
+      done: "Great mindfulness habit this week." },
+    { key: "activity", ok: weeklyActivityMinutes >= goals.activity,
+      tip: "Boost your activity levels — even light exercise makes a difference.",
+      done: "You've hit your activity goal." },
+    { key: "appointments", ok: upcoming.length > 0,
+      tip: "No upcoming appointments — check if any check-ups or follow-ups are due.",
+      done: `You have ${upcoming.length} upcoming ${upcoming.length === 1 ? "appointment" : "appointments"}.` },
+  ];
 
   return (
-    <div className="progress-card">
-      <h3>Personalized Recommendations</h3>
-      {tips.length === 0 ? (
-        <p>Great work — you're meeting all your weekly goals!</p>
-      ) : (
-        tips.map((tip) => <p key={tip}>{tip}</p>)
-      )}
-    </div>
+    <section className="card">
+      <div className="card__header">
+        <h2 className="card__title">Recommendations</h2>
+        <span className="muted small">Based on your weekly goals</span>
+      </div>
+      <ul className="reco-list">
+        {checks.map((c) => (
+          <li key={c.key} className="reco" style={{ "--tile-color": MODULES[c.key].color }}>
+            <span className={`reco__status ${c.ok ? "reco__status--ok" : ""}`} aria-label={c.ok ? "On track" : "Needs attention"}>
+              <Icon name={c.ok ? "check" : MODULES[c.key].icon} size={16} />
+            </span>
+            <span>{c.ok ? c.done : c.tip}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

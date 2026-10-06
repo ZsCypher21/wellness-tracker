@@ -51,3 +51,28 @@ export function localDateTimeToIso(value) {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "" : d.toISOString();
 }
+
+// "2026-10-05" -> "Mon, 5 Oct" (adds the year if it isn't the current year)
+export function formatDayDate(value) {
+  const d = parseLocalDate(value);
+  if (!d) return "";
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return d.toLocaleDateString("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+}
+
+// "Today", "Yesterday" or the formatted date
+export function relativeDay(value) {
+  const d = parseLocalDate(value);
+  if (!d) return "";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diff = Math.round((today - d) / 86400000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return formatDayDate(value);
+}

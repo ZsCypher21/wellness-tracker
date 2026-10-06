@@ -1,25 +1,11 @@
-/**
- * Shared layout wrapper used by all main pages.
- *
- * Notes:
- * - Very small component, so comments focus only on its purpose.
- * - Provides consistent semantic structure: <main>, <header>, <section>.
- * - All feature pages plug their content into this container.
- *
- * Responsibilities:
- * - Render a page title.
- * - Wrap page content in a consistent layout block.
- */
+import PageHeader from "./PageHeader";
 
-export default function PageContainer({ title, children }) {
+// Wrapper used by pages that only need a title and content area
+export default function PageContainer({ title, subtitle, icon, color, actions, children }) {
   return (
-    <main className="page">
-      <header>
-        <h2 className="page__title">{title}</h2>
-      </header>
-
-      {/* Page-specific content injected by the parent */}
-      <section className="page__content">{children}</section>
-    </main>
+    <div className="page">
+      <PageHeader title={title} subtitle={subtitle} icon={icon} color={color} actions={actions} />
+      {children}
+    </div>
   );
 }
