@@ -1,149 +1,223 @@
-# 🌿 Wellness Tracker  
-A modern wellness tracking application built with React.  
-Track your daily sleep, hydration, meditation, activities, and appointments — all in one clean, intuitive interface.
+# 🌿 Wellness Tracker
+
+A full-stack wellness web app for logging **activity, sleep, hydration, meditation and health appointments** in one place, setting weekly goals, and seeing progress over time.
+
+Built with **React + Vite** (frontend), **Node.js + Express** (REST API) and **PostgreSQL** (database).
+
+| | |
+|---|---|
+| **Live app** | https://wellness-tracker-two-lime.vercel.app |
+| **API** | https://wellness-tracker-htx7.onrender.com/api/health |
+| **Unit** | ICT930 Advanced Web Application Development – Assessment 3 (group project) |
+
+> The API is hosted on Render's free tier and sleeps when idle, so the **first request can take 30–60 seconds**. If login seems slow, wait a moment and try again.
 
 ---
 
-## 📌 Project Overview  
-The Wellness Tracker is a personal health dashboard designed to help users build consistent wellness habits.  
-It provides simple forms for logging daily activities, weekly summaries, progress dashboards, and personalized recommendations based on user data.
+## ✨ Features
 
-The app focuses on clarity, speed, and ease of use — ideal for everyday tracking without complexity.
-
----
-
-## 🛠️ Technology Stack  
-
-**Frontend:**  
-- React (Functional Components + Hooks)  
-- Context API for global state management  
-- Vite for fast development and bundling  
-- Custom CSS for styling  
-- LocalStorage persistence  
-
-**Other Tools:**  
-- ESLint (React rules)  
-- GitHub for version control  
-- Vercel for deployment  
+- **Accounts** – register and log in; passwords hashed with bcrypt, routes protected with JWT. Each user only sees their own data.
+- **Dashboard** – this week's totals for each module with progress towards weekly goals, a 7-day chart per metric, and the next appointment.
+- **Activity, Sleep, Hydration & Meditation** – add, edit and delete entries; weekly summary and goal progress; full history pages.
+- **Appointments** – upcoming and past views, with add / edit / delete.
+- **Progress** – weekly summary, activity breakdown by type, and recommendations based on your goals.
+- **Profile & goals** – edit your name, bio and weekly targets.
+- **Responsive & accessible** – sidebar on desktop, slide-in menu on mobile; labelled form fields, keyboard-friendly dialogs and menus, and screen-reader friendly errors and loading states.
 
 ---
 
-## 📥 Installation Instructions  
+## 🛠️ Technology Stack
 
-### 1. Clone the repository  
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, React Router 7, Context API, Recharts, custom CSS |
+| Backend | Node.js, Express 5, JSON Web Tokens, bcryptjs |
+| Database | PostgreSQL (`pg` driver, parameterised queries) |
+| Hosting | Vercel (frontend), Render (API + PostgreSQL) |
+| Tooling | ESLint, Git / GitHub |
+
+---
+
+## 🏗️ Architecture
+
+```
+React (Vercel)  ──HTTPS + JWT──▶  Express API (Render)  ──SQL──▶  PostgreSQL (Render)
+       ▲                                   │
+       └──────────── JSON responses ◀──────┘
+```
+
+- All frontend requests go through `src/services/api.js`, which adds the JWT, shows server error messages, and logs the user out if the token has expired.
+- On start-up the API runs `server/schema.sql` and `server/migrate.js`, which create any missing tables, repair older table layouts and add indexes – so a fresh database needs no manual setup.
+
+---
+
+## 📁 Project Structure
+
+```
+wellness-tracker/
+├── src/                      # React frontend
+│   ├── components/
+│   │   ├── features/         # forms, edit dialogs, TrackerPage, charts, progress widgets
+│   │   ├── layout/           # Navbar, Sidebar, PageHeader, Footer
+│   │   ├── ui/               # Modal, Icon, ProgressBar, Loading, EmptyState, ErrorMessage
+│   │   └── common/           # HistoryItem (entry row with Edit/Delete menu)
+│   ├── context/              # Auth, Profile and one context per module
+│   ├── pages/                # Dashboard, module pages, history pages, Profile, Login
+│   ├── services/api.js       # fetch wrapper for the REST API
+│   ├── utils/                # date helpers, module colours/icons
+│   └── styles/global.css
+├── server/                   # Express API
+│   ├── routes/               # auth, profile, activities, sleep, hydration, meditation, appointments
+│   ├── middleware/           # JWT authentication
+│   ├── utils/errors.js       # turns bad input into 400 responses
+│   ├── schema.sql            # table definitions
+│   ├── migrate.js            # start-up schema repair + indexes
+│   ├── db.js                 # PostgreSQL connection pool
+│   └── index.js              # app entry point
+├── vercel.json               # SPA routing for Vercel
+└── index.html
+```
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+- Node.js 20+ and npm
+- PostgreSQL 14+ (local install or a hosted database)
+
+### 1. Clone
 ```bash
 git clone https://github.com/ZsCypher21/wellness-tracker.git
 cd wellness-tracker
 ```
 
-### 2. Install dependencies  
+### 2. Backend
+```bash
+cd server
+npm install
+```
+
+Create `server/.env`:
+```env
+PORT=5000
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/wellness_tracker
+DATABASE_SSL=false          # use true (or remove) for Render / hosted databases
+JWT_SECRET=replace-with-a-long-random-string
+```
+
+Start the API (tables are created automatically on first run):
+```bash
+npm run dev      # or: npm start
+```
+Check it: http://localhost:5000/api/health
+
+### 3. Frontend
+In a second terminal, from the project root:
 ```bash
 npm install
 ```
 
-### 3. Start the development server  
+Create `.env` in the project root:
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Start the app:
 ```bash
 npm run dev
 ```
+Open http://localhost:5173 and register an account.
 
-### 4. Build for production  
+### Other scripts
 ```bash
-npm run build
+npm run build    # production build into dist/
+npm run lint     # ESLint for frontend and backend
 ```
 
----
-
-## ⭐ Key Features  
-
-### 💤 Sleep Tracking  
-Log total hours slept and view weekly averages.
-
-### 💧 Hydration Tracking  
-Track daily water intake with optional notes.
-
-### 🧘 Meditation Tracking  
-Record meditation duration and type.
-
-### 🏃 Activity Tracking  
-Log physical activities with duration and category breakdowns.
-
-### 📅 Appointment Tracking  
-Track upcoming and past appointments with date/time filtering.
-
-### 📊 Weekly Progress Dashboard  
-- Average sleep  
-- Total hydration  
-- Total meditation minutes  
-- Activities logged  
-- Appointments attended  
-
-### 🎯 Personalized Recommendations  
-Simple rule-based suggestions to improve wellness habits.
-
-### 🗂️ Category Breakdown  
-Visual summary of activity and meditation types.
-
-### 🧭 Clean UI + Tabs Navigation  
-Switch easily between current and history logs.
+> `.env` files contain secrets and are excluded from Git – never commit them.
 
 ---
 
-## 🧩 Design Decisions  
+## 🔌 API Reference
 
-### 1. **Context API over Redux**  
-Chosen for simplicity and lightweight global state management.
+All routes are prefixed with `/api`. Routes marked 🔒 need an `Authorization: Bearer <token>` header.
 
-### 2. **LocalStorage Persistence**  
-Allows data to survive page reloads without needing a backend.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register` | Create an account → returns JWT |
+| POST | `/auth/login` | Log in → returns JWT |
+| GET 🔒 | `/profile` | Get name, email, bio and weekly goals |
+| POST 🔒 | `/profile/update` | Update name, bio and goals |
+| GET 🔒 | `/{module}/history` | All entries, newest first |
+| GET 🔒 | `/{module}/recent` | Last 5 entries |
+| POST 🔒 | `/{module}/add` | Add an entry |
+| PUT 🔒 | `/{module}/:id` | Update an entry |
+| DELETE 🔒 | `/{module}/:id` | Delete an entry |
+| GET 🔒 | `/appointments/upcoming` | Future appointments |
+| GET 🔒 | `/appointments/past` | Past appointments |
+| GET | `/health` | Health check |
 
-### 3. **Modular Component Architecture**  
-Each wellness category has its own form, list, and context — making the app easy to extend.
+`{module}` is one of `activities`, `sleep`, `hydration`, `meditation` (appointments also support add / PUT / DELETE).
 
-### 4. **Weekly Filtering Logic**  
-Consistent date-based filtering across all datasets ensures accurate weekly summaries.
-
-### 5. **Minimalistic UI**  
-Focused on clarity and usability rather than heavy styling frameworks.
-
----
-
-## 🔮 Future Enhancements (Coming Soon)
-
-### **Backend Integration & User Accounts**
-A full backend service will be introduced to support:
-
-- Secure user authentication  
-- Multiple user profiles  
-- Cross‑device access  
-
-This upgrade will transition the app from a local-only tracker to a fully persistent, multi-user wellness platform.
-
-### **Target-Based Progress Tracking**
-The dashboard will evolve to include **goal vs. actual comparisons** across all wellness metrics:
-
-- Sleep (e.g., target 8 hrs/night vs. actual average)  
-- Hydration (daily liter goal vs. weekly total)  
-- Meditation (minutes per day/week)  
-- Activities (frequency + intensity targets)  
-
-Users will be able to set custom targets, and the dashboard will visualize progress using:
-
-- Progress bars  
-- Weekly trend charts  
-- Goal completion indicators  
-- Personalized recommendations based on gaps
-
-### **Advanced Analytics**
-Planned enhancements include:
-
-- Weekly and monthly trend graphs  
-- Habit consistency scoring  
-- Category-based insights  
+Errors are returned as JSON: `400` invalid input, `401` missing or expired token, `404` not found, `500` server error.
 
 ---
 
-## 🚀 Deployed Application URL  
-**Live Demo:**  
-`https://wellness-tracker-two-lime.vercel.app`
+## ☁️ Deployment
+
+**Backend (Render web service)**
+- Root directory: `server` · Build: `npm install` · Start: `npm start`
+- Environment variables: `DATABASE_URL` (Render PostgreSQL internal URL), `JWT_SECRET`, optional `FRONTEND_URL` (extra allowed CORS origins, comma-separated)
+
+**Frontend (Vercel)**
+- Framework: Vite · Build: `npm run build` · Output: `dist`
+- Environment variable: `VITE_API_URL=https://wellness-tracker-htx7.onrender.com`
+- `vercel.json` rewrites all routes to `index.html` so page refreshes work.
+
+Every push to `main` redeploys both automatically.
 
 ---
+
+## ✅ Testing
+
+API test cases (run against the Express API with a fresh PostgreSQL 16 database) – all passing:
+
+| Test case | Expected |
+|---|---|
+| Register; log in (email in any letter case) | 200 + JWT |
+| View / update profile goals | 200, values saved |
+| Add, edit, delete an activity | 200, list updated |
+| Add sleep, hydration and meditation entries | 200, saved for that user only |
+| Appointments split into upcoming and past | Correct list for each |
+| Invalid number / missing required fields | 400 |
+| Invalid or expired token | 401 |
+| Unknown route / malformed JSON | 404 / 400 |
+| Start-up repair of an old-layout database | Columns added, insert works |
+
+ESLint reports no errors across the frontend and backend.
+
+---
+
+## ⚠️ Known Limitations
+
+- No admin role; analytics cover the last 7 days only.
+- All data is entered manually (no wearable integration).
+- Free hosting tier causes a slow first request after inactivity.
+
+## 🔮 Future Enhancements
+
+- Monthly and long-term trend charts, reminders, and data export
+- Pagination for long histories
+- Rate limiting, stronger password rules, two-factor authentication and httpOnly cookie tokens
+- Wearable device integration
+
+---
+
+## 👥 Team
+
+| Name | Role |
+|---|---|
+| Prasana Lal Shrestha | Project lead, integration & deployment, documentation |
+| Anjal Khadka | Database design & backend connection |
+| Rajib Adhikari | Report & presentation |
